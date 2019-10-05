@@ -1,0 +1,8 @@
+{
+  "name": "game-client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hevans90/rts-experiments.git",
+  "author": "hevans90",
+  "license": "MIT"
+}
