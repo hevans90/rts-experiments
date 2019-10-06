@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to the future" />
+    <HelloWorld msg="the ultimate game" />
   </div>
 </template>
 
@@ -16,3 +16,11 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped lang="scss">
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+</style>
