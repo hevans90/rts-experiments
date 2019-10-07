@@ -10,6 +10,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import * as PIXI from 'pixi.js';
+import { catLoader } from '../game/load-cat';
 
 export default Vue.extend({
   name: 'game',
@@ -20,7 +21,7 @@ export default Vue.extend({
     const width = renderCanvas.offsetWidth;
     const height = renderCanvas.offsetHeight;
 
-    let game = new PIXI.Application({
+    const game = new PIXI.Application({
       width,
       height,
       view: renderCanvas,
@@ -31,6 +32,8 @@ export default Vue.extend({
     game.renderer.view.style.display = 'block';
     game.renderer.autoResize = true;
     game.renderer.resize(window.innerWidth, window.innerHeight);
+
+    catLoader(game);
   },
 });
 </script>
