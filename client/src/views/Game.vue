@@ -10,12 +10,15 @@
 <script lang="ts">
 import Vue from 'vue';
 import * as PIXI from 'pixi.js';
-import { catLoader } from '../game/load-cat';
+import { assetLoader } from '../game/asset-loader';
+import { AssetCollection } from '../game/models/assets';
 
 export default Vue.extend({
   name: 'game',
 
-  mounted() {
+  async mounted() {
+    PIXI.Loader.shared.reset();
+
     // Determine the width and height of the renderer wrapper element.
     const renderCanvas = this.$refs.renderCanvas as HTMLCanvasElement;
     const width = renderCanvas.offsetWidth;
@@ -33,7 +36,20 @@ export default Vue.extend({
     game.renderer.autoResize = true;
     game.renderer.resize(window.innerWidth, window.innerHeight);
 
-    catLoader(game);
+    let loadedAssets: Partial<AssetCollection>;
+
+    try {
+      loadedAssets = await assetLoader();
+    } catch (e) {
+      console.error(e);
+    }
+
+    const sprite = new PIXI.Sprite(loadedAssets.cat.texture);
+    sprite.position.x = 150;
+    sprite.position.y = 150;
+    game.stage.addChild(sprite);
+
+    console.log(loadedAssets);
   },
 });
 </script>
