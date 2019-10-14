@@ -1,8 +1,6 @@
 import { loadAssets } from '@/game/asset-loader';
 import mock from 'xhr-mock';
 
-// jest.mock('cat.png');
-
 describe('asset loader', () => {
   // replace the real XHR object with the mock XHR object before each test
   beforeEach(() => mock.setup());
