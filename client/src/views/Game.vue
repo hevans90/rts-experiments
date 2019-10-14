@@ -40,16 +40,18 @@ export default Vue.extend({
 
     try {
       loadedAssets = await assetLoader();
+
+      if (loadedAssets.cat) {
+        const sprite = new PIXI.Sprite(loadedAssets.cat.texture);
+        sprite.position.x = 150;
+        sprite.position.y = 150;
+        game.stage.addChild(sprite);
+      }
+
+      console.log(loadedAssets);
     } catch (e) {
       console.error(e);
     }
-
-    const sprite = new PIXI.Sprite(loadedAssets.cat.texture);
-    sprite.position.x = 150;
-    sprite.position.y = 150;
-    game.stage.addChild(sprite);
-
-    console.log(loadedAssets);
   },
 });
 </script>
