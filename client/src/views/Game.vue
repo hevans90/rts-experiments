@@ -31,11 +31,6 @@ export default Vue.extend({
       backgroundColor: 0x36454f,
     });
 
-    game.renderer.view.style.position = 'absolute';
-    game.renderer.view.style.display = 'block';
-    game.renderer.autoResize = true;
-    game.renderer.resize(window.innerWidth, window.innerHeight);
-
     let loadedAssets: Partial<AssetCollection>;
 
     try {
