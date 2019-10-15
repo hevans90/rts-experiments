@@ -75,26 +75,7 @@ export const isoMetricGame = ({
     for (let i = -mapRadius; i <= mapRadius; i++) {
       for (let j = -mapRadius; j <= mapRadius; j++) {
         background.addChild(initTile(i, j));
-
-        let c = '009900';
-        if (j < -7) {
-          c = '990000';
-        }
-        if (i < -7) {
-          c = '990000';
-        }
-        if (j > 7) {
-          c = '990000';
-        }
-        if (i > 7) {
-          c = '990000';
-        }
-
-        if (i === -5) {
-          c = '000099';
-        }
-
-        setTile(i, j, c);
+        setTile(i, j);
       }
     }
 
@@ -133,6 +114,7 @@ export const isoMetricGame = ({
 
       cameraIndicator.text = `deltaX: ${delx}, deltaY: ${dely}`;
 
+      console.warn(delx);
       if (delx === 0) {
         console.log('click');
         setGraphicTileColor(
@@ -186,8 +168,7 @@ export const isoMetricGame = ({
         myContainer.position.x = newPosition.x - myContainer.sx;
         myContainer.position.y = newPosition.y - myContainer.sy;
       } else {
-        cartesianIndicator.text = newPosition.x + ', ' + newPosition.y;
-
+        cartesianIndicator.text = `${newPosition.x}, ${newPosition.y}`;
         tileIndicator.text = c.toString();
       }
     }
@@ -241,7 +222,7 @@ export const isoMetricGame = ({
     return gr;
   }
 
-  function setTile(i: number, j: number, c: string) {
+  function setTile(i: number, j: number) {
     const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
     const gr = background.getChildAt(num) as any;
 
@@ -250,9 +231,24 @@ export const isoMetricGame = ({
     gr.c3 = indexToIso(i + tileGap, j + 1 - tileGap);
     gr.c4 = indexToIso(i + tileGap, j + tileGap);
 
-    if (c) {
-      setGraphicTileColor([i, j], '0x' + c);
+    let c = '009900';
+    if (j < -7) {
+      c = '990000';
     }
+    if (i < -7) {
+      c = '990000';
+    }
+    if (j > 7) {
+      c = '990000';
+    }
+    if (i > 7) {
+      c = '990000';
+    }
+
+    if (i === -5) {
+      c = '000099';
+    }
+    setGraphicTileColor([i, j], '0x' + c);
   }
 
   const indexToIso = (i: number, j: number) => {
