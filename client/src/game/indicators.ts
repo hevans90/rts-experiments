@@ -21,9 +21,9 @@ const indicatorFactory = (
   return indicator;
 };
 
-export const dragIndicator = indicatorFactory(10, 0);
-export const cameraIndicator = indicatorFactory(10, 30);
-export const cartesianIndicator = indicatorFactory(10, 60);
-export const tileIndicator = indicatorFactory(10, 90);
+export const cartesianIndicator = indicatorFactory(10, 0);
+export const tileIndicator = indicatorFactory(10, 30);
+export const dragIndicator = indicatorFactory(10, 60);
+export const cameraIndicator = indicatorFactory(10, 90);
 export const orientationIndicatorFactory = (height: number) =>
   indicatorFactory(10, height - 30);
