@@ -1,5 +1,8 @@
 <template>
-  <router-link to="/game">Play {{ msg }}</router-link>
+  <div class="nav">
+    <router-link to="/game">Play {{ msg }}</router-link>
+    <router-link to="/isometric">What the hell is this?</router-link>
+  </div>
 </template>
 
 <script lang="ts">
@@ -15,6 +18,11 @@ export default Vue.extend({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.nav {
+  display: flex;
+  flex-direction: column;
+}
+
 h3 {
   margin: 40px 0 0;
 }
@@ -28,5 +36,8 @@ li {
 }
 a {
   color: #42b983;
+  font-size: 50px;
+  margin-top: 10px;
+  margin-bottom: 5px;
 }
 </style>
