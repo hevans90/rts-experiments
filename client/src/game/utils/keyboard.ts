@@ -19,7 +19,7 @@ export const keyboard = (
   const key: KeyboardItem = {
     value,
     isDown: false,
-    isUp: false,
+    isUp: true,
     press,
     release,
     holdDown,
