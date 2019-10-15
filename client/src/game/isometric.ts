@@ -7,12 +7,13 @@ import {
   cartesianIndicator,
   tileIndicator,
   orientationIndicatorFactory,
-  cameraIndicator1 as cameraIndicator1,
-  cameraIndicator3 as cameraIndicator3,
-  cameraIndicator4 as cameraIndicator4,
-  cameraIndicator2 as cameraIndicator2,
+  cameraIndicator1,
+  cameraIndicator2,
+  cameraIndicator3,
+  cameraIndicator4,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
+import { keyboard } from './keyboard';
 
 export const isoMetricGame = ({
   stage,
@@ -32,21 +33,25 @@ export const isoMetricGame = ({
    *
    * rotation of 1 gives you 45 Degrees
    */
-  const rotation = 1;
+  let rotation = 1;
 
   /**
    * 2 gives you isometric view
    */
-  const ai = 2;
+  let ai = 2;
 
+  /**
+   * default is 2.0
+   */
   const scale = 2.0;
-  const offsetX = (mapRadius * 2 + 1) * tileWidth * scale;
-  const offsetY = (((mapRadius * 2 + 1) * tileWidth - tileWidth) * scale) / ai; // ox/ai // (h - at) / 2;
 
-  const borderL = -offsetX * 2 + width;
-  const borderR = 0;
-  const borderD = -(offsetY + (tileWidth * scale) / ai) * 2 + height;
-  const borderU = 0;
+  let offsetX: number;
+  let offsetY: number;
+
+  let borderL: number;
+  let borderR: number;
+  let borderD: number;
+  let borderU: number;
 
   let velx = 0;
   let vely = 0;
@@ -54,10 +59,19 @@ export const isoMetricGame = ({
   let delx = 0;
   let dely = 0;
 
+  let startAi = ai;
+  let startRotation = rotation;
+  let startDragx = 0;
+  let startDragy = 0;
+
   let draggedx = 0;
   let draggedy = 0;
 
+  let sumDraggedx = 0;
+  let sumDraggedy = 0;
+
   let dragging = false;
+  let controlHeld = false;
 
   let count2 = 0;
 
@@ -71,14 +85,24 @@ export const isoMetricGame = ({
 
   stage.addChild(
     dragIndicator,
-    cameraIndicator1,
     cartesianIndicator,
     tileIndicator,
     orientationIndicator,
+    cameraIndicator1,
+    cameraIndicator2,
     cameraIndicator3,
     cameraIndicator4,
-    cameraIndicator2,
   );
+
+  function initView() {
+    offsetX = (mapRadius * 2 + 1) * tileWidth * scale;
+    offsetY = (((mapRadius * 2 + 1) * tileWidth - tileWidth) * scale) / ai; // ox/ai // (h - at) / 2;
+
+    borderL = -offsetX * 2 + width;
+    borderR = 0;
+    borderD = -(offsetY + (tileWidth * scale) / ai) * 2 + height;
+    borderU = 0;
+  }
 
   function initScene() {
     for (let i = -mapRadius; i <= mapRadius; i++) {
@@ -109,24 +133,26 @@ export const isoMetricGame = ({
     function mouseDownInteraction({ data }: PIXI.interaction.InteractionEvent) {
       console.log('MOUSE DOWN');
       dragging = true;
-      dragIndicator.text = 'yay';
       myContainer.sx =
         data.getLocalPosition(myContainer).x * myContainer.scale.x;
       myContainer.sy =
         data.getLocalPosition(myContainer).y * myContainer.scale.y;
       delx = dely = 0;
       velx = vely = 0;
-      draggedx = 0;
-      draggedy = 0;
+      const parentPosition = data.getLocalPosition(myContainer.parent);
+      startDragx = parentPosition.x;
+      startDragy = parentPosition.y;
+      startAi = ai;
+      startRotation = rotation;
+      draggedx = draggedy = 0;
+      sumDraggedx = sumDraggedy = 0;
     }
 
     function mouseUpInteraction({ data }: PIXI.interaction.InteractionEvent) {
       dragging = false;
       dragIndicator.text = 'not dragging';
 
-      cameraIndicator1.text = `draggedx: ${draggedx}, draggedy: ${draggedy}`;
-
-      if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
+      if (Math.abs(sumDraggedx) < 1 && Math.abs(sumDraggedy) < 1) {
         console.log('MOUSE UP - NO DRAG');
 
         setGraphicTileColor(
@@ -144,10 +170,11 @@ export const isoMetricGame = ({
         );
         renderer.render(background, texture);
       } else {
+        console.log('MOUSE UP - DRAG');
+
         velx = Math.floor(myContainer.position.x - delx);
         vely = Math.floor(myContainer.position.y - dely);
         delx = dely = 0;
-        console.log('MOUSE UP - DRAG');
       }
     }
 
@@ -166,26 +193,49 @@ export const isoMetricGame = ({
 
       if (dragging) {
         const parentPosition = data.getLocalPosition(myContainer.parent);
-        cameraIndicator1.text = `draggedx: ${draggedx}, draggedy: ${draggedy}`;
-        cameraIndicator3.text = `myContainer = x: ${newPosition.x -
-          myContainer.sx}, y: ${newPosition.y - myContainer.sy}`;
-        cameraIndicator4.text = `myContainer.parent = \
-        x: ${data.getLocalPosition(myContainer.parent).x}, \
-        y: ${data.getLocalPosition(myContainer.parent).y}`;
+        cameraIndicator1.text = `startDragx: ${startDragx}, startDragy: ${startDragy}`;
+        cameraIndicator2.text = `draggedx: ${draggedx /
+          100}, draggedy: ${draggedy / 100}`;
+        cameraIndicator3.text = `sumDraggedx: ${sumDraggedx}, sumDraggedy: ${sumDraggedy}`;
+        cameraIndicator4.text = `ai: ${ai}, rotation: ${rotation}`;
 
-        draggedx += myContainer.position.x / 1000;
-        draggedy += myContainer.position.y / 1000;
-        
-        delx = myContainer.position.x;
-        dely = myContainer.position.y;
+        draggedx = startDragx - parentPosition.x;
+        draggedy = startDragy - parentPosition.y;
 
-        myContainer.position.x = parentPosition.x - myContainer.sx;
-        myContainer.position.y = parentPosition.y - myContainer.sy;
+        sumDraggedx += myContainer.position.x / 1000;
+        sumDraggedy += myContainer.position.y / 1000;
+
+        if (controlHeld) {
+          rotation = startRotation + draggedx / 100;
+          ai = startAi + draggedy / 100;
+
+          changeScene();          
+          renderer.render(background, texture);
+        } else {
+          delx = myContainer.position.x;
+          dely = myContainer.position.y;
+
+          myContainer.position.x = parentPosition.x - myContainer.sx;
+          myContainer.position.y = parentPosition.y - myContainer.sy;
+        }
       } else if (!isNaN(newPosition.x) && !isNaN(newPosition.y)) {
         cartesianIndicator.text = `${newPosition.x}, ${newPosition.y}`;
         tileIndicator.text = c.toString();
       }
     }
+
+    const keyObject = keyboard('Control');
+
+    keyObject.press = () => {
+      controlHeld = true;
+      console.log(`Control Held: ${controlHeld}`);
+    };
+
+    keyObject.release = () => {
+      controlHeld = false;
+      console.log(`Control Held: ${controlHeld}`);
+    };
+
     myContainer.addListener('mousedown', mouseDownInteraction);
     myContainer.addListener('touchstart', mouseDownInteraction);
 
@@ -194,6 +244,16 @@ export const isoMetricGame = ({
 
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
+  }
+
+  function changeScene() {
+    console.log(`change scene`);
+    initView();
+    for (let i = -mapRadius; i <= mapRadius; i++) {
+      for (let j = -mapRadius; j <= mapRadius; j++) {
+        setTile(i, j);
+      }
+    }
   }
 
   function setGraphicTileColor(ij: any[] | number[], color: string) {
@@ -271,6 +331,7 @@ export const isoMetricGame = ({
     return [x, y];
   };
 
+  initView();
   initScene();
 
   let winmode = '';
@@ -296,7 +357,6 @@ export const isoMetricGame = ({
     if (velx > 0) {
       myContainer.position.x += velx;
       velx -= 1;
-      // console.log(velx)
     }
 
     if (velx < 0) {
