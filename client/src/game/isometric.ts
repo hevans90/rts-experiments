@@ -7,12 +7,13 @@ import {
   cartesianIndicator,
   tileIndicator,
   orientationIndicatorFactory,
-  cameraIndicator1 as cameraIndicator1,
-  cameraIndicator3 as cameraIndicator3,
-  cameraIndicator4 as cameraIndicator4,
-  cameraIndicator2 as cameraIndicator2,
+  cameraIndicator1,
+  cameraIndicator3,
+  cameraIndicator4,
+  cameraIndicator2,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
+import { keyboard } from './utils/keyboard';
 
 export const isoMetricGame = ({
   stage,
@@ -175,7 +176,7 @@ export const isoMetricGame = ({
 
         draggedx += myContainer.position.x / 1000;
         draggedy += myContainer.position.y / 1000;
-        
+
         delx = myContainer.position.x;
         dely = myContainer.position.y;
 
@@ -186,6 +187,7 @@ export const isoMetricGame = ({
         tileIndicator.text = c.toString();
       }
     }
+
     myContainer.addListener('mousedown', mouseDownInteraction);
     myContainer.addListener('touchstart', mouseDownInteraction);
 
@@ -194,6 +196,29 @@ export const isoMetricGame = ({
 
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
+
+    keyboard('ArrowUp', () => (vely += 5), () => (vely = 0), () => (vely += 1));
+
+    keyboard(
+      'ArrowDown',
+      () => (vely -= 5),
+      () => (vely = 0),
+      () => (vely -= 1),
+    );
+
+    keyboard(
+      'ArrowRight',
+      () => (velx -= 5),
+      () => (velx = 0),
+      () => (velx -= 1),
+    );
+
+    keyboard(
+      'ArrowLeft',
+      () => (velx += 5),
+      () => (velx = 0),
+      () => (velx += 1),
+    );
   }
 
   function setGraphicTileColor(ij: any[] | number[], color: string) {
@@ -216,10 +241,7 @@ export const isoMetricGame = ({
   }
 
   function initTile(i: number, j: number) {
-    const gr = new PIXI.Graphics() as any;
-    gr.i = i;
-    gr.j = j;
-    gr.c = 0;
+    const gr = new PIXI.Graphics() as IsometricGraphic;
 
     gr.c1 = indexToIso(i + 1 - tileGap, j + tileGap);
     gr.c2 = indexToIso(i + 1 - tileGap, j + 1 - tileGap);
@@ -238,7 +260,7 @@ export const isoMetricGame = ({
 
   function setTile(i: number, j: number) {
     const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
-    const gr = background.getChildAt(num) as any;
+    const gr = background.getChildAt(num) as IsometricGraphic;
 
     gr.c1 = indexToIso(i + 1 - tileGap, j + tileGap);
     gr.c2 = indexToIso(i + 1 - tileGap, j + 1 - tileGap);
@@ -265,7 +287,7 @@ export const isoMetricGame = ({
     setGraphicTileColor([i, j], '0x' + c);
   }
 
-  const indexToIso = (i: number, j: number) => {
+  const indexToIso = (i: number, j: number): [number, number] => {
     const x = offsetX + (i - j * rotation) * scale * tileWidth;
     const y = offsetY + ((j + i * rotation) * scale * tileWidth) / ai;
     return [x, y];
