@@ -148,7 +148,7 @@ export const isoMetricGame = ({
     }
 
     function mouseMoveInteraction({ data }: PIXI.interaction.InteractionEvent) {
-      let newPosition = data.getLocalPosition(myContainer);
+      const newPosition = data.getLocalPosition(myContainer);
       const c = isoToIndex(
         newPosition.x,
         newPosition.y,
