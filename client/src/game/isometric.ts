@@ -2,39 +2,41 @@ import * as PIXI from 'pixi.js';
 
 import { IsometricSprite } from './models/isometric-sprite';
 import { IsometricGraphic } from './models/isometric-graphic';
+import { indicatorPreset } from './models/indicator-preset';
+import { isoToIndex } from './utils/iso-to-index';
 
-export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
-  const w = 600;
-  const h = 380;
-
+export const isoMetricGame = ({
+  stage,
+  renderer,
+  view: { width, height },
+}: PIXI.Application) => {
   requestAnimationFrame(animate);
 
-  const n = 12; // CHANGE THIS
+  const mapRadius = 14;
 
-  const tileWidth = 64; // tile width
+  const tileWidth = 16;
 
-  /**
-   * gap between tiles
-   */
-  const tileGap = 0.01; // gap between tiles
+  const tileGap = 0.02; // gap between tiles
 
   /**
+   * **radians**
+   *
    * rotation of 1 gives you 45 Degrees
    */
-  const ar = 1;
+  const rotation = 1;
 
   /**
    * 2 gives you isometric view
    */
   const ai = 2;
 
-  const scale = 1.0;
-  const offsetX = (n * 2 + 1) * tileWidth * scale;
-  const offsetY = (((n * 2 + 1) * tileWidth - tileWidth) * scale) / ai; // ox/ai // (h - at) / 2;
+  const scale = 2.0;
+  const offsetX = (mapRadius * 2 + 1) * tileWidth * scale;
+  const offsetY = (((mapRadius * 2 + 1) * tileWidth - tileWidth) * scale) / ai; // ox/ai // (h - at) / 2;
 
-  const borderL = -offsetX * 2 + w;
+  const borderL = -offsetX * 2 + width;
   const borderR = 0;
-  const borderD = -(offsetY + (tileWidth * scale) / ai) * 2 + h;
+  const borderD = -(offsetY + (tileWidth * scale) / ai) * 2 + height;
   const borderU = 0;
 
   let velx = 0;
@@ -48,31 +50,46 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
   let count2 = 0;
 
   const background = new PIXI.Container();
+
   let myContainer: IsometricSprite;
 
-  const mt1 = new PIXI.Text(' ', {
-    font: '12px Arial',
-  });
-  mt1.position.x = 10;
-  mt1.position.y = 20;
+  const dragIndicator = new PIXI.Text('', indicatorPreset);
+  dragIndicator.position.x = 10;
+  dragIndicator.position.y = 0;
+  dragIndicator.zIndex = 2;
 
-  const mt2 = new PIXI.Text(' ', {
-    font: '12px Arial',
-  });
-  mt2.position.x = 10;
-  mt2.position.y = 40;
+  const cameraIndicator = new PIXI.Text('', indicatorPreset);
+  cameraIndicator.position.x = 10;
+  cameraIndicator.position.y = 30;
+  cameraIndicator.zIndex = 2;
 
-  const mt3 = new PIXI.Text(' ', {
-    font: '12px Arial',
-  });
-  mt3.position.x = 10;
-  mt3.position.y = 60;
+  const cartesianIndicator = new PIXI.Text('', indicatorPreset);
+  cartesianIndicator.position.x = 10;
+  cartesianIndicator.position.y = 60;
+  cartesianIndicator.zIndex = 2;
 
-  stage.addChild(mt1, mt2, mt3);
+  const tileIndicator = new PIXI.Text('', indicatorPreset);
+  tileIndicator.position.x = 10;
+  tileIndicator.position.y = 90;
+  tileIndicator.zIndex = 2;
+
+  const orientationIndicator = new PIXI.Text('', indicatorPreset);
+  orientationIndicator.position.x = 10;
+  orientationIndicator.position.y = height - 30;
+  orientationIndicator.zIndex = 2;
+
+  stage.sortableChildren = true;
+  stage.addChild(
+    dragIndicator,
+    cameraIndicator,
+    cartesianIndicator,
+    tileIndicator,
+    orientationIndicator,
+  );
 
   function initScene() {
-    for (let i = -n; i <= n; i++) {
-      for (let j = -n; j <= n; j++) {
+    for (let i = -mapRadius; i <= mapRadius; i++) {
+      for (let j = -mapRadius; j <= mapRadius; j++) {
         initTile(i, j);
 
         let c = '009900';
@@ -120,7 +137,7 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
 
     function mouseDownInteraction({ data }: PIXI.interaction.InteractionEvent) {
       dragging = true;
-      mt1.text = 'yay';
+      dragIndicator.text = 'yay';
       myContainer.sx =
         data.getLocalPosition(myContainer).x * myContainer.scale.x;
       myContainer.sy =
@@ -131,12 +148,29 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
 
     function mouseUpInteraction({ data }: PIXI.interaction.InteractionEvent) {
       dragging = false;
-      mt1.text = 'no dragging yet. ';
+      dragIndicator.text = 'not dragging';
+
+      cameraIndicator.text = `deltaX: ${delx}, deltaY: ${dely}`;
+
+      // cameraIndicator.text = `${Math.abs(delx) - width / 2}, ${Math.abs(dely) -
+      //   height / 2}`;
+      // cameraIndicator.text = `camera centered at: ${delx -
+      //   myContainer.position.x -
+      //   width / 2}, ${dely - myContainer.position.y - height / 2}`;
 
       if (delx === 0) {
         console.log('click');
         setGraphicTileColor(
-          isoToIndex(myContainer.sx, myContainer.sy),
+          isoToIndex(
+            myContainer.sx,
+            myContainer.sy,
+            scale,
+            tileWidth,
+            offsetX,
+            offsetY,
+            rotation,
+            ai,
+          ),
           '0xFF0000',
         );
         renderer.render(background, texture);
@@ -158,7 +192,16 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
 
     function mouseMoveInteraction({ data }: PIXI.interaction.InteractionEvent) {
       let newPosition = data.getLocalPosition(myContainer);
-      const c = isoToIndex(newPosition.x, newPosition.y);
+      const c = isoToIndex(
+        newPosition.x,
+        newPosition.y,
+        scale,
+        tileWidth,
+        offsetX,
+        offsetY,
+        rotation,
+        ai,
+      );
 
       if (dragging) {
         newPosition = data.getLocalPosition(myContainer.parent);
@@ -168,15 +211,9 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
         myContainer.position.x = newPosition.x - myContainer.sx;
         myContainer.position.y = newPosition.y - myContainer.sy;
       } else {
-        mt2.text =
-          delx -
-          myContainer.position.x +
-          'xy/ij: ' +
-          newPosition.x +
-          ', ' +
-          newPosition.y +
-          ' / ' +
-          c;
+        cartesianIndicator.text = newPosition.x + ', ' + newPosition.y;
+
+        tileIndicator.text = c.toString();
       }
     }
     myContainer.addListener('mousedown', mouseDownInteraction);
@@ -192,7 +229,7 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
   function setGraphicTileColor(ij: any[] | number[], color: string) {
     const i = ij[0];
     const j = ij[1];
-    const num = (i + n) * (2 * n + 1) + j + n;
+    const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
     const gr = background.getChildAt(num) as IsometricGraphic;
 
     gr.clear();
@@ -230,7 +267,7 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
   }
 
   function setTile(i: number, j: number, c: string) {
-    const num = (i + n) * (2 * n + 1) + j + n;
+    const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
     const gr = background.getChildAt(num) as any;
 
     gr.c1 = indexToIso(i + 1 - tileGap, j + tileGap);
@@ -244,25 +281,9 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
   }
 
   const indexToIso = (i: number, j: number) => {
-    const x = offsetX + (i - j * ar) * scale * tileWidth;
-    const y = offsetY + ((j + i * ar) * scale * tileWidth) / ai;
+    const x = offsetX + (i - j * rotation) * scale * tileWidth;
+    const y = offsetY + ((j + i * rotation) * scale * tileWidth) / ai;
     return [x, y];
-  };
-
-  const isoToIndex = (x: number, y: number) => {
-    const b = scale * tileWidth;
-
-    const s = x - offsetX;
-    const t = y - offsetY;
-
-    let j = (((t - (s * ar) / ai) / (1 + ar * ar)) * ai) / b;
-    let i = (s + j * b * ar) / b;
-
-    i = Math.floor(i);
-    j = Math.floor(j);
-
-    // console.log( 'isoToIndex: ' + x,y,i,j)
-    return [i, j];
   };
 
   initScene();
@@ -274,7 +295,7 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
     } else {
       winmode = 'landscape';
     }
-    mt3.text = winmode;
+    orientationIndicator.text = winmode;
   }, 500);
 
   function animate() {
@@ -282,7 +303,7 @@ export const isoMetricGame = ({ stage, renderer }: PIXI.Application) => {
 
     if (dragging) {
       count2 += 1;
-      mt1.text = count2.toString();
+      dragIndicator.text = `dragging for ${count2} animation frames`;
     } else {
       count2 = 0;
     }
