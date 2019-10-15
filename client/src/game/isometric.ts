@@ -2,7 +2,13 @@ import * as PIXI from 'pixi.js';
 
 import { IsometricSprite } from './models/isometric-sprite';
 import { IsometricGraphic } from './models/isometric-graphic';
-import { indicatorPreset } from './models/indicator-preset';
+import {
+  dragIndicator,
+  cameraIndicator,
+  cartesianIndicator,
+  tileIndicator,
+  orientationIndicatorFactory,
+} from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
 
 export const isoMetricGame = ({
@@ -53,32 +59,10 @@ export const isoMetricGame = ({
 
   let myContainer: IsometricSprite;
 
-  const dragIndicator = new PIXI.Text('', indicatorPreset);
-  dragIndicator.position.x = 10;
-  dragIndicator.position.y = 0;
-  dragIndicator.zIndex = 2;
-
-  const cameraIndicator = new PIXI.Text('', indicatorPreset);
-  cameraIndicator.position.x = 10;
-  cameraIndicator.position.y = 30;
-  cameraIndicator.zIndex = 2;
-
-  const cartesianIndicator = new PIXI.Text('', indicatorPreset);
-  cartesianIndicator.position.x = 10;
-  cartesianIndicator.position.y = 60;
-  cartesianIndicator.zIndex = 2;
-
-  const tileIndicator = new PIXI.Text('', indicatorPreset);
-  tileIndicator.position.x = 10;
-  tileIndicator.position.y = 90;
-  tileIndicator.zIndex = 2;
-
-  const orientationIndicator = new PIXI.Text('', indicatorPreset);
-  orientationIndicator.position.x = 10;
-  orientationIndicator.position.y = height - 30;
-  orientationIndicator.zIndex = 2;
+  const orientationIndicator = orientationIndicatorFactory(height);
 
   stage.sortableChildren = true;
+
   stage.addChild(
     dragIndicator,
     cameraIndicator,
@@ -90,7 +74,7 @@ export const isoMetricGame = ({
   function initScene() {
     for (let i = -mapRadius; i <= mapRadius; i++) {
       for (let j = -mapRadius; j <= mapRadius; j++) {
-        initTile(i, j);
+        background.addChild(initTile(i, j));
 
         let c = '009900';
         if (j < -7) {
@@ -114,9 +98,6 @@ export const isoMetricGame = ({
       }
     }
 
-    console.log(background.getBounds());
-
-    // render the tilemap to a render texture
     // render the tilemap to a render texture
     const texture = PIXI.RenderTexture.create({
       width: offsetX * 2,
@@ -151,12 +132,6 @@ export const isoMetricGame = ({
       dragIndicator.text = 'not dragging';
 
       cameraIndicator.text = `deltaX: ${delx}, deltaY: ${dely}`;
-
-      // cameraIndicator.text = `${Math.abs(delx) - width / 2}, ${Math.abs(dely) -
-      //   height / 2}`;
-      // cameraIndicator.text = `camera centered at: ${delx -
-      //   myContainer.position.x -
-      //   width / 2}, ${dely - myContainer.position.y - height / 2}`;
 
       if (delx === 0) {
         console.log('click');
@@ -263,7 +238,7 @@ export const isoMetricGame = ({
       new PIXI.Point(gr.c4[0], gr.c4[1]),
     ]);
 
-    background.addChild(gr);
+    return gr;
   }
 
   function setTile(i: number, j: number, c: string) {
