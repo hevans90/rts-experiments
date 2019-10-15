@@ -4,10 +4,13 @@ import { IsometricSprite } from './models/isometric-sprite';
 import { IsometricGraphic } from './models/isometric-graphic';
 import {
   dragIndicator,
-  cameraIndicator,
   cartesianIndicator,
   tileIndicator,
   orientationIndicatorFactory,
+  cameraIndicator1 as cameraIndicator1,
+  cameraIndicator3 as cameraIndicator3,
+  cameraIndicator4 as cameraIndicator4,
+  cameraIndicator2 as cameraIndicator2,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
 
@@ -51,6 +54,9 @@ export const isoMetricGame = ({
   let delx = 0;
   let dely = 0;
 
+  let draggedx = 0;
+  let draggedy = 0;
+
   let dragging = false;
 
   let count2 = 0;
@@ -65,10 +71,13 @@ export const isoMetricGame = ({
 
   stage.addChild(
     dragIndicator,
-    cameraIndicator,
+    cameraIndicator1,
     cartesianIndicator,
     tileIndicator,
     orientationIndicator,
+    cameraIndicator3,
+    cameraIndicator4,
+    cameraIndicator2,
   );
 
   function initScene() {
@@ -98,6 +107,7 @@ export const isoMetricGame = ({
     myContainer.interactive = true;
 
     function mouseDownInteraction({ data }: PIXI.interaction.InteractionEvent) {
+      console.log('MOUSE DOWN');
       dragging = true;
       dragIndicator.text = 'yay';
       myContainer.sx =
@@ -106,17 +116,19 @@ export const isoMetricGame = ({
         data.getLocalPosition(myContainer).y * myContainer.scale.y;
       delx = dely = 0;
       velx = vely = 0;
+      draggedx = 0;
+      draggedy = 0;
     }
 
     function mouseUpInteraction({ data }: PIXI.interaction.InteractionEvent) {
       dragging = false;
       dragIndicator.text = 'not dragging';
 
-      cameraIndicator.text = `deltaX: ${delx}, deltaY: ${dely}`;
+      cameraIndicator1.text = `draggedx: ${draggedx}, draggedy: ${draggedy}`;
 
-      console.warn(delx);
-      if (delx === 0) {
-        console.log('click');
+      if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
+        console.log('MOUSE UP - NO DRAG');
+
         setGraphicTileColor(
           isoToIndex(
             myContainer.sx,
@@ -135,15 +147,7 @@ export const isoMetricGame = ({
         velx = Math.floor(myContainer.position.x - delx);
         vely = Math.floor(myContainer.position.y - dely);
         delx = dely = 0;
-        console.log(
-          'drag -->',
-          myContainer.position.x,
-          myContainer.position.y,
-          delx,
-          dely,
-          velx,
-          vely,
-        );
+        console.log('MOUSE UP - DRAG');
       }
     }
 
@@ -162,6 +166,16 @@ export const isoMetricGame = ({
 
       if (dragging) {
         const parentPosition = data.getLocalPosition(myContainer.parent);
+        cameraIndicator1.text = `draggedx: ${draggedx}, draggedy: ${draggedy}`;
+        cameraIndicator3.text = `myContainer = x: ${newPosition.x -
+          myContainer.sx}, y: ${newPosition.y - myContainer.sy}`;
+        cameraIndicator4.text = `myContainer.parent = \
+        x: ${data.getLocalPosition(myContainer.parent).x}, \
+        y: ${data.getLocalPosition(myContainer.parent).y}`;
+
+        draggedx += myContainer.position.x / 1000;
+        draggedy += myContainer.position.y / 1000;
+        
         delx = myContainer.position.x;
         dely = myContainer.position.y;
 

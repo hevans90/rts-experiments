@@ -24,6 +24,9 @@ const indicatorFactory = (
 export const cartesianIndicator = indicatorFactory(10, 0);
 export const tileIndicator = indicatorFactory(10, 30);
 export const dragIndicator = indicatorFactory(10, 60);
-export const cameraIndicator = indicatorFactory(10, 90);
+export const cameraIndicator1 = indicatorFactory(10, 90);
+export const cameraIndicator2 = indicatorFactory(10, 120);
+export const cameraIndicator3 = indicatorFactory(10, 150);
+export const cameraIndicator4 = indicatorFactory(10, 180);
 export const orientationIndicatorFactory = (height: number) =>
   indicatorFactory(10, height - 30);
