@@ -161,13 +161,13 @@ export const isoMetricGame = ({
       );
 
       if (dragging) {
-        newPosition = data.getLocalPosition(myContainer.parent);
+        const parentPosition = data.getLocalPosition(myContainer.parent);
         delx = myContainer.position.x;
         dely = myContainer.position.y;
 
-        myContainer.position.x = newPosition.x - myContainer.sx;
-        myContainer.position.y = newPosition.y - myContainer.sy;
-      } else {
+        myContainer.position.x = parentPosition.x - myContainer.sx;
+        myContainer.position.y = parentPosition.y - myContainer.sy;
+      } else if (!isNaN(newPosition.x) && !isNaN(newPosition.y)) {
         cartesianIndicator.text = `${newPosition.x}, ${newPosition.y}`;
         tileIndicator.text = c.toString();
       }

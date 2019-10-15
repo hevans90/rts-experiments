@@ -18,7 +18,5 @@ export const isoToIndex = (
 
   i = Math.floor(i);
   j = Math.floor(j);
-
-  // console.log( 'isoToIndex: ' + x,y,i,j)
   return [i, j];
 };
