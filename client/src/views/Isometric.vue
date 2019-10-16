@@ -47,13 +47,22 @@ export default Vue.extend({
   position: absolute;
   top: 0;
   left: 0;
-  padding: 12px;
   z-index: 1;
+  padding: 12px;
 
-  background: white;
-  border-bottom-right-radius: 8px;
-  border-right: 1px solid grey;
-  border-bottom: 1px solid grey;
+  * {
+    visibility: hidden;
+  }
+
+  &:hover {
+    background: white;
+    border-bottom-right-radius: 8px;
+    border-right: 1px solid grey;
+    border-bottom: 1px solid grey;
+    * {
+      visibility: visible;
+    }
+  }
 }
 
 .game__canvas {
