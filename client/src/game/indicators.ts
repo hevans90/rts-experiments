@@ -29,12 +29,10 @@ const indicatorFactory = (
 // top left indicators
 export const cartesianIndicator = indicatorFactory(10, 10);
 export const tileIndicator = indicatorFactory(10, 30);
-export const myContainerIndicator = indicatorFactory(10, 50);
-export const myContainerParentIndicator = indicatorFactory(10, 70);
-
-// top right indicators
 export const mapVelocityIndicatorFactory = (width: number) =>
-  indicatorFactory(width - 225, 10, 'Velocity: ');
+  indicatorFactory(10, 50, 'Velocity: ');
+export const myContainerIndicator = indicatorFactory(10, 70);
+export const myContainerParentIndicator = indicatorFactory(10, 90);
 
 // bottom left indicators
 export const draggedIndicatorFactory = (height: number) =>

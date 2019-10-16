@@ -84,14 +84,11 @@ export const isoMetricGame = ({
   stage.sortableChildren = true;
 
   stage.addChild(
+    // top left indicators
     cartesianIndicator,
     tileIndicator,
-
-    // top left indicators
     myContainerIndicator,
     myContainerParentIndicator,
-
-    // top right indicators
     mapVelocityIndicator,
 
     // bottom left indicators
@@ -196,12 +193,20 @@ export const isoMetricGame = ({
 
       if (dragging) {
         const parentPosition = data.getLocalPosition(myContainer.parent);
-        draggedIndicator.text = `dragged: { x: ${draggedx}, y: ${draggedy}}`;
-        myContainerIndicator.text = `myContainer = x: ${newPosition.x -
-          myContainer.sx}, y: ${newPosition.y - myContainer.sy}`;
-        myContainerParentIndicator.text = `myContainer.parent = \
-        x: ${data.getLocalPosition(myContainer.parent).x}, \
-        y: ${data.getLocalPosition(myContainer.parent).y}`;
+
+        draggedIndicator.text = `dragged: { x: ${draggedx.toFixed(
+          2,
+        )}, y: ${draggedy.toFixed(2)}}`;
+
+        myContainerIndicator.text = `myContainer = { x: ${(
+          newPosition.x - myContainer.sx
+        ).toFixed(2)}, y: ${(newPosition.y - myContainer.sy).toFixed(2)}}`;
+
+        myContainerParentIndicator.text = `myContainer.parent = { x: ${data
+          .getLocalPosition(myContainer.parent)
+          .x.toFixed(2)}, y: ${data
+          .getLocalPosition(myContainer.parent)
+          .y.toFixed(2)} }`;
 
         draggedx += myContainer.position.x / 1000;
         draggedy += myContainer.position.y / 1000;
@@ -212,7 +217,9 @@ export const isoMetricGame = ({
         myContainer.position.x = parentPosition.x - myContainer.sx;
         myContainer.position.y = parentPosition.y - myContainer.sy;
       } else if (!isNaN(newPosition.x) && !isNaN(newPosition.y)) {
-        cartesianIndicator.text = `${newPosition.x}, ${newPosition.y}`;
+        cartesianIndicator.text = `${newPosition.x.toFixed(
+          2,
+        )}, ${newPosition.y.toFixed(2)}`;
         tileIndicator.text = c.toString();
       }
     };
@@ -338,7 +345,7 @@ export const isoMetricGame = ({
   function animate() {
     requestAnimationFrame(animate);
 
-    mapVelocityIndicator.text = `Velocity: {x: ${velx}, y: ${vely}}`;
+    mapVelocityIndicator.text = `Velocity: { x: ${velx}, y: ${vely} }`;
 
     if (dragging) {
       count2 += 1;
