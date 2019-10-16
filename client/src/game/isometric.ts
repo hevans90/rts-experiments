@@ -216,58 +216,58 @@ export const isoMetricGame = ({
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
 
-    const upArrow = keyboard(
-      'ArrowUp',
-      () => {
+    const upArrow = keyboard({
+      value: 'ArrowUp',
+      press: () => {
         upArrowIndicator.style.fill = IndicatorColor.green;
         vely += 5;
         velx = 0;
       },
-      () => {
+      release: () => {
         upArrowIndicator.style.fill = IndicatorColor.white;
         vely = 0;
       },
-      () => (vely += 1),
-    );
+      holdDown: () => (vely += 1),
+    });
 
-    const downArrow = keyboard(
-      'ArrowDown',
-      () => {
+    const downArrow = keyboard({
+      value: 'ArrowDown',
+      press: () => {
         downArrowIndicator.style.fill = IndicatorColor.green;
         vely -= 5;
         velx = 0;
       },
-      () => {
+      release: () => {
         downArrowIndicator.style.fill = IndicatorColor.white;
         vely = 0;
       },
-      () => (vely -= 1),
-    );
+      holdDown: () => (vely -= 1),
+    });
 
-    const rightArrow = keyboard(
-      'ArrowRight',
-      () => {
+    const rightArrow = keyboard({
+      value: 'ArrowRight',
+      press: () => {
         rightArrowIndicator.style.fill = IndicatorColor.green;
         velx -= 5;
       },
-      () => {
+      release: () => {
         rightArrowIndicator.style.fill = IndicatorColor.white;
         velx = 0;
       },
-      () => (velx -= 1),
-    );
-    const leftArrow = keyboard(
-      'ArrowLeft',
-      () => {
+      holdDown: () => (velx -= 1),
+    });
+    const leftArrow = keyboard({
+      value: 'ArrowLeft',
+      press: () => {
         leftArrowIndicator.style.fill = IndicatorColor.green;
         velx += 5;
       },
-      () => {
+      release: () => {
         leftArrowIndicator.style.fill = IndicatorColor.white;
         velx = 0;
       },
-      () => (velx += 1),
-    );
+      holdDown: () => (velx += 1),
+    });
   }
 
   function setGraphicTileColor(ij: any[] | number[], color: string) {

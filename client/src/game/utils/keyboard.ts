@@ -10,12 +10,17 @@ interface KeyboardItem {
   unsubscribe?: () => void;
 }
 
-export const keyboard = (
-  value: string,
-  press: () => void,
-  release: () => void,
-  holdDown?: () => void,
-): KeyboardItem => {
+export const keyboard = ({
+  value,
+  press,
+  release,
+  holdDown,
+}: {
+  value: string;
+  press: () => void;
+  release: () => void;
+  holdDown?: () => void;
+}): KeyboardItem => {
   const key: KeyboardItem = {
     value,
     isDown: false,
