@@ -26,7 +26,7 @@ export const isoMetricGame = ({
 }: PIXI.Application) => {
   requestAnimationFrame(animate);
 
-  const mapRadius = 12;
+  const mapRadius = 18;
 
   const tileWidth = 16;
 

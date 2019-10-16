@@ -16,9 +16,21 @@ export const keyboard = ({
   release,
   holdDown,
 }: {
+  /**
+   * This function will be called upon pressing the key.
+   */
   value: string;
+  /**
+   * This function will be called upon pressing the key.
+   */
   press: () => void;
+  /**
+   * This function will be called upon releasing the key. Will cancel any `holdDown` logic.
+   */
   release: () => void;
+  /**
+   * This function will be called every `17`ms until the `release` function is called.
+   */
   holdDown?: () => void;
 }): KeyboardItem => {
   const key: KeyboardItem = {
