@@ -10,6 +10,11 @@ import {
   myContainerIndicator,
   myContainerParentIndicator,
   orientationIndicatorFactory,
+  upArrowIndicatorFactory,
+  downArrowIndicatorFactory,
+  IndicatorColor,
+  leftArrowIndicatorFactory,
+  rightArrowIndicatorFactory,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
 import { keyboard } from './utils/keyboard';
@@ -21,7 +26,7 @@ export const isoMetricGame = ({
 }: PIXI.Application) => {
   requestAnimationFrame(animate);
 
-  const mapRadius = 14;
+  const mapRadius = 12;
 
   const tileWidth = 16;
 
@@ -69,6 +74,11 @@ export const isoMetricGame = ({
   const dragIndicator = dragIndicatorFactory(height);
   const draggedIndicator = draggedIndicatorFactory(height);
 
+  const upArrowIndicator = upArrowIndicatorFactory(height, width);
+  const downArrowIndicator = downArrowIndicatorFactory(height, width);
+  const leftArrowIndicator = leftArrowIndicatorFactory(height, width);
+  const rightArrowIndicator = rightArrowIndicatorFactory(height, width);
+
   stage.sortableChildren = true;
 
   stage.addChild(
@@ -78,10 +88,16 @@ export const isoMetricGame = ({
     myContainerIndicator,
     myContainerParentIndicator,
 
-    // bottom indicators
+    // bottom left indicators
     draggedIndicator,
     dragIndicator,
     orientationIndicator,
+
+    // bottom right indicators
+    upArrowIndicator,
+    downArrowIndicator,
+    leftArrowIndicator,
+    rightArrowIndicator,
   );
 
   function initScene() {
@@ -203,30 +219,53 @@ export const isoMetricGame = ({
     const upArrow = keyboard(
       'ArrowUp',
       () => {
+        upArrowIndicator.style.fill = IndicatorColor.green;
         vely += 5;
         velx = 0;
       },
-      () => (vely = 0),
-      () => !downArrow.isDown && (vely += 1),
+      () => {
+        upArrowIndicator.style.fill = IndicatorColor.white;
+        vely = 0;
+      },
+      () => (vely += 1),
     );
 
     const downArrow = keyboard(
       'ArrowDown',
-      () => !upArrow.isDown && (vely -= 5) && (velx = 0),
-      () => !upArrow.isDown && (vely = 0),
-      () => !upArrow.isDown && (vely -= 1),
+      () => {
+        downArrowIndicator.style.fill = IndicatorColor.green;
+        vely -= 5;
+        velx = 0;
+      },
+      () => {
+        downArrowIndicator.style.fill = IndicatorColor.white;
+        vely = 0;
+      },
+      () => (vely -= 1),
     );
 
     const rightArrow = keyboard(
       'ArrowRight',
-      () => (velx -= 5),
-      () => (velx = 0),
+      () => {
+        rightArrowIndicator.style.fill = IndicatorColor.green;
+        velx -= 5;
+      },
+      () => {
+        rightArrowIndicator.style.fill = IndicatorColor.white;
+        velx = 0;
+      },
       () => (velx -= 1),
     );
     const leftArrow = keyboard(
       'ArrowLeft',
-      () => (velx += 5),
-      () => (velx = 0),
+      () => {
+        leftArrowIndicator.style.fill = IndicatorColor.green;
+        velx += 5;
+      },
+      () => {
+        leftArrowIndicator.style.fill = IndicatorColor.white;
+        velx = 0;
+      },
       () => (velx += 1),
     );
   }
