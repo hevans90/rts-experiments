@@ -12,13 +12,12 @@ import {
   orientationIndicatorFactory,
   upArrowIndicatorFactory,
   downArrowIndicatorFactory,
-  IndicatorColor,
   leftArrowIndicatorFactory,
   rightArrowIndicatorFactory,
   mapVelocityIndicatorFactory,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
-import { keyboard } from './utils/keyboard';
+import { bindKeyboardListeners } from './bind-keyboard-listeners';
 
 export const isoMetricGame = ({
   stage,
@@ -107,7 +106,7 @@ export const isoMetricGame = ({
     rightArrowIndicator,
   );
 
-  function initScene() {
+  const initScene = () => {
     for (let i = -mapRadius; i <= mapRadius; i++) {
       for (let j = -mapRadius; j <= mapRadius; j++) {
         background.addChild(initTile(i, j));
@@ -133,7 +132,9 @@ export const isoMetricGame = ({
 
     myContainer.interactive = true;
 
-    function mouseDownInteraction({ data }: PIXI.interaction.InteractionEvent) {
+    const mouseDownInteraction = ({
+      data,
+    }: PIXI.interaction.InteractionEvent) => {
       console.log('MOUSE DOWN');
       dragging = true;
       dragIndicator.text = 'yay';
@@ -145,9 +146,9 @@ export const isoMetricGame = ({
       velx = vely = 0;
       draggedx = 0;
       draggedy = 0;
-    }
+    };
 
-    function mouseUpInteraction() {
+    const mouseUpInteraction = () => {
       dragging = false;
       dragIndicator.text = 'not dragging';
 
@@ -176,9 +177,11 @@ export const isoMetricGame = ({
         delx = dely = 0;
         console.log('MOUSE UP - DRAG');
       }
-    }
+    };
 
-    function mouseMoveInteraction({ data }: PIXI.interaction.InteractionEvent) {
+    const mouseMoveInteraction = ({
+      data,
+    }: PIXI.interaction.InteractionEvent) => {
       const newPosition = data.getLocalPosition(myContainer);
       const c = isoToIndex(
         newPosition.x,
@@ -212,7 +215,7 @@ export const isoMetricGame = ({
         cartesianIndicator.text = `${newPosition.x}, ${newPosition.y}`;
         tileIndicator.text = c.toString();
       }
-    }
+    };
 
     myContainer.addListener('mousedown', mouseDownInteraction);
     myContainer.addListener('touchstart', mouseDownInteraction);
@@ -223,62 +226,32 @@ export const isoMetricGame = ({
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
 
-    keyboard({
-      value: 'ArrowUp',
-      press: () => {
-        upArrowIndicator.style.fill = IndicatorColor.green;
-        vely += 5;
-        velx = 0;
-      },
-      release: () => {
-        upArrowIndicator.style.fill = IndicatorColor.white;
-        vely = 0;
-      },
-      holdDown: () => (vely += 2),
-    });
+    bindKeyboardListeners(
+      upArrowIndicator,
+      downArrowIndicator,
+      rightArrowIndicator,
+      leftArrowIndicator,
+      ({ dvelx, dvely, hardSetX, hardSetY }) => {
+        if (hardSetX !== undefined) {
+          velx = hardSetX;
+        }
 
-    keyboard({
-      value: 'ArrowDown',
-      press: () => {
-        downArrowIndicator.style.fill = IndicatorColor.green;
-        vely -= 5;
-        velx = 0;
-      },
-      release: () => {
-        downArrowIndicator.style.fill = IndicatorColor.white;
-        vely = 0;
-      },
-      holdDown: () => (vely -= 2),
-    });
+        if (dvelx) {
+          velx += dvelx;
+        }
 
-    keyboard({
-      value: 'ArrowRight',
-      press: () => {
-        rightArrowIndicator.style.fill = IndicatorColor.green;
-        velx -= 5;
-      },
-      release: () => {
-        rightArrowIndicator.style.fill = IndicatorColor.white;
-        velx = 0;
-      },
-      holdDown: () => (velx -= 2),
-    });
+        if (hardSetY !== undefined) {
+          vely = hardSetY;
+        }
 
-    keyboard({
-      value: 'ArrowLeft',
-      press: () => {
-        leftArrowIndicator.style.fill = IndicatorColor.green;
-        velx += 5;
+        if (dvely) {
+          vely += dvely;
+        }
       },
-      release: () => {
-        leftArrowIndicator.style.fill = IndicatorColor.white;
-        velx = 0;
-      },
-      holdDown: () => (velx += 2),
-    });
-  }
+    );
+  };
 
-  function setGraphicTileColor(ij: any[] | number[], color: string) {
+  const setGraphicTileColor = (ij: any[] | number[], color: string) => {
     const i = ij[0];
     const j = ij[1];
     const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
@@ -295,9 +268,9 @@ export const isoMetricGame = ({
     gr.lineTo(gr.c4[0], gr.c4[1]);
 
     gr.endFill();
-  }
+  };
 
-  function initTile(i: number, j: number) {
+  const initTile = (i: number, j: number) => {
     const gr = new PIXI.Graphics() as IsometricGraphic;
 
     gr.c1 = indexToIso(i + 1 - tileGap, j + tileGap);
@@ -313,9 +286,9 @@ export const isoMetricGame = ({
     ]);
 
     return gr;
-  }
+  };
 
-  function setTile(i: number, j: number) {
+  const setTile = (i: number, j: number) => {
     const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
     const gr = background.getChildAt(num) as IsometricGraphic;
 
@@ -342,7 +315,7 @@ export const isoMetricGame = ({
       c = '000099';
     }
     setGraphicTileColor([i, j], '0x' + c);
-  }
+  };
 
   const indexToIso = (i: number, j: number): [number, number] => {
     const x = offsetX + (i - j * rotation) * scale * tileWidth;
