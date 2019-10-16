@@ -27,15 +27,16 @@ const indicatorFactory = (
 };
 
 // top left indicators
-
 export const cartesianIndicator = indicatorFactory(10, 10);
 export const tileIndicator = indicatorFactory(10, 30);
-
 export const myContainerIndicator = indicatorFactory(10, 50);
 export const myContainerParentIndicator = indicatorFactory(10, 70);
 
-// bottom left indicators
+// top right indicators
+export const mapVelocityIndicatorFactory = (width: number) =>
+  indicatorFactory(width - 225, 10, 'Velocity: ');
 
+// bottom left indicators
 export const draggedIndicatorFactory = (height: number) =>
   indicatorFactory(10, height - 65);
 
@@ -46,7 +47,6 @@ export const orientationIndicatorFactory = (height: number) =>
   indicatorFactory(10, height - 25);
 
 // bottom right indicators
-
 export const upArrowIndicatorFactory = (height: number, width: number) =>
   indicatorFactory(width - 100, height - 65, ' UP');
 

@@ -15,6 +15,7 @@ import {
   IndicatorColor,
   leftArrowIndicatorFactory,
   rightArrowIndicatorFactory,
+  mapVelocityIndicatorFactory,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
 import { keyboard } from './utils/keyboard';
@@ -79,14 +80,20 @@ export const isoMetricGame = ({
   const leftArrowIndicator = leftArrowIndicatorFactory(height, width);
   const rightArrowIndicator = rightArrowIndicatorFactory(height, width);
 
+  const mapVelocityIndicator = mapVelocityIndicatorFactory(width);
+
   stage.sortableChildren = true;
 
   stage.addChild(
     cartesianIndicator,
     tileIndicator,
 
+    // top left indicators
     myContainerIndicator,
     myContainerParentIndicator,
+
+    // top right indicators
+    mapVelocityIndicator,
 
     // bottom left indicators
     draggedIndicator,
@@ -216,7 +223,7 @@ export const isoMetricGame = ({
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
 
-    const upArrow = keyboard({
+    keyboard({
       value: 'ArrowUp',
       press: () => {
         upArrowIndicator.style.fill = IndicatorColor.green;
@@ -227,10 +234,10 @@ export const isoMetricGame = ({
         upArrowIndicator.style.fill = IndicatorColor.white;
         vely = 0;
       },
-      holdDown: () => (vely += 1),
+      holdDown: () => (vely += 2),
     });
 
-    const downArrow = keyboard({
+    keyboard({
       value: 'ArrowDown',
       press: () => {
         downArrowIndicator.style.fill = IndicatorColor.green;
@@ -241,10 +248,10 @@ export const isoMetricGame = ({
         downArrowIndicator.style.fill = IndicatorColor.white;
         vely = 0;
       },
-      holdDown: () => (vely -= 1),
+      holdDown: () => (vely -= 2),
     });
 
-    const rightArrow = keyboard({
+    keyboard({
       value: 'ArrowRight',
       press: () => {
         rightArrowIndicator.style.fill = IndicatorColor.green;
@@ -254,9 +261,10 @@ export const isoMetricGame = ({
         rightArrowIndicator.style.fill = IndicatorColor.white;
         velx = 0;
       },
-      holdDown: () => (velx -= 1),
+      holdDown: () => (velx -= 2),
     });
-    const leftArrow = keyboard({
+
+    keyboard({
       value: 'ArrowLeft',
       press: () => {
         leftArrowIndicator.style.fill = IndicatorColor.green;
@@ -266,7 +274,7 @@ export const isoMetricGame = ({
         leftArrowIndicator.style.fill = IndicatorColor.white;
         velx = 0;
       },
-      holdDown: () => (velx += 1),
+      holdDown: () => (velx += 2),
     });
   }
 
@@ -356,6 +364,8 @@ export const isoMetricGame = ({
 
   function animate() {
     requestAnimationFrame(animate);
+
+    mapVelocityIndicator.text = `Velocity: {x: ${velx}, y: ${vely}}`;
 
     if (dragging) {
       count2 += 1;
