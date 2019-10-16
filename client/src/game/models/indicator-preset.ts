@@ -1,5 +1,5 @@
 export interface IndicatorPreset {
-  fontFamily: 'Arial';
+  fontFamily: 'Arial' | 'Courier';
   fontSize: number;
   fill: number;
   align: string;

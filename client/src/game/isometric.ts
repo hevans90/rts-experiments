@@ -3,14 +3,13 @@ import * as PIXI from 'pixi.js';
 import { IsometricSprite } from './models/isometric-sprite';
 import { IsometricGraphic } from './models/isometric-graphic';
 import {
-  dragIndicator,
   cartesianIndicator,
   tileIndicator,
+  dragIndicatorFactory,
+  draggedIndicatorFactory,
+  myContainerIndicator,
+  myContainerParentIndicator,
   orientationIndicatorFactory,
-  cameraIndicator1,
-  cameraIndicator3,
-  cameraIndicator4,
-  cameraIndicator2,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
 import { keyboard } from './utils/keyboard';
@@ -67,18 +66,22 @@ export const isoMetricGame = ({
   let myContainer: IsometricSprite;
 
   const orientationIndicator = orientationIndicatorFactory(height);
+  const dragIndicator = dragIndicatorFactory(height);
+  const draggedIndicator = draggedIndicatorFactory(height);
 
   stage.sortableChildren = true;
 
   stage.addChild(
-    dragIndicator,
-    cameraIndicator1,
     cartesianIndicator,
     tileIndicator,
+
+    myContainerIndicator,
+    myContainerParentIndicator,
+
+    // bottom indicators
+    draggedIndicator,
+    dragIndicator,
     orientationIndicator,
-    cameraIndicator3,
-    cameraIndicator4,
-    cameraIndicator2,
   );
 
   function initScene() {
@@ -121,11 +124,11 @@ export const isoMetricGame = ({
       draggedy = 0;
     }
 
-    function mouseUpInteraction({ data }: PIXI.interaction.InteractionEvent) {
+    function mouseUpInteraction() {
       dragging = false;
       dragIndicator.text = 'not dragging';
 
-      cameraIndicator1.text = `draggedx: ${draggedx}, draggedy: ${draggedy}`;
+      draggedIndicator.text = '';
 
       if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
         console.log('MOUSE UP - NO DRAG');
@@ -167,10 +170,10 @@ export const isoMetricGame = ({
 
       if (dragging) {
         const parentPosition = data.getLocalPosition(myContainer.parent);
-        cameraIndicator1.text = `draggedx: ${draggedx}, draggedy: ${draggedy}`;
-        cameraIndicator3.text = `myContainer = x: ${newPosition.x -
+        draggedIndicator.text = `dragged: { x: ${draggedx}, y: ${draggedy}}`;
+        myContainerIndicator.text = `myContainer = x: ${newPosition.x -
           myContainer.sx}, y: ${newPosition.y - myContainer.sy}`;
-        cameraIndicator4.text = `myContainer.parent = \
+        myContainerParentIndicator.text = `myContainer.parent = \
         x: ${data.getLocalPosition(myContainer.parent).x}, \
         y: ${data.getLocalPosition(myContainer.parent).y}`;
 
@@ -197,23 +200,30 @@ export const isoMetricGame = ({
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
 
-    keyboard('ArrowUp', () => (vely += 5), () => (vely = 0), () => (vely += 1));
-
-    keyboard(
-      'ArrowDown',
-      () => (vely -= 5),
+    const upArrow = keyboard(
+      'ArrowUp',
+      () => {
+        vely += 5;
+        velx = 0;
+      },
       () => (vely = 0),
-      () => (vely -= 1),
+      () => !downArrow.isDown && (vely += 1),
     );
 
-    keyboard(
+    const downArrow = keyboard(
+      'ArrowDown',
+      () => !upArrow.isDown && (vely -= 5) && (velx = 0),
+      () => !upArrow.isDown && (vely = 0),
+      () => !upArrow.isDown && (vely -= 1),
+    );
+
+    const rightArrow = keyboard(
       'ArrowRight',
       () => (velx -= 5),
       () => (velx = 0),
       () => (velx -= 1),
     );
-
-    keyboard(
+    const leftArrow = keyboard(
       'ArrowLeft',
       () => (velx += 5),
       () => (velx = 0),
