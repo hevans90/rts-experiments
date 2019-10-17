@@ -30,6 +30,7 @@ describe('bindKeyboardListeners', () => {
 
   afterEach(() => {
     keyboardSpy.mockClear();
+    mockVelocityChangeCallback.mockClear();
     keyboardListeners.forEach(listener => listener.unsubscribe());
   });
 
@@ -38,13 +39,17 @@ describe('bindKeyboardListeners', () => {
   });
 
   describe('post-registration', () => {
-    it('should correctly react to ArrowUp keydown', () => {
+    it('should correctly react to ArrowUp events', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
       expect(mockVelocityChangeCallback).toHaveBeenCalled();
       expect(mockVelocityChangeCallback).toHaveBeenCalledWith({ dvely: 5 });
       expect(mockVelocityChangeCallback).toHaveBeenCalledTimes(1);
+      mockVelocityChangeCallback.mockClear();
 
-      //   window.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowUp' }));
+      window.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowUp' }));
+      expect(mockVelocityChangeCallback).toHaveBeenCalled();
+      expect(mockVelocityChangeCallback).toHaveBeenCalledWith({ hardSetY: 0 });
+      expect(mockVelocityChangeCallback).toHaveBeenCalledTimes(1);
     });
   });
 });
