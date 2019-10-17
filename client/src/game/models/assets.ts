@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 
-export const assetKeys = ['cat'] as const;
+export const assetKeys = ['cat', 'zoom-in', 'zoom-out'] as const;
 
 type AssetTuple = typeof assetKeys;
 

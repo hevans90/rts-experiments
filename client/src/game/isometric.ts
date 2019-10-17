@@ -18,12 +18,12 @@ import {
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
 import { bindKeyboardListeners } from './bind-keyboard-listeners';
+import { AssetCollection } from './models/assets';
 
-export const isoMetricGame = ({
-  stage,
-  renderer,
-  view: { width, height },
-}: PIXI.Application) => {
+export const isoMetricGame = (
+  { stage, renderer, view: { width, height } }: PIXI.Application,
+  assetCollection: Partial<AssetCollection>,
+) => {
   requestAnimationFrame(animate);
 
   const mapRadius = 18;

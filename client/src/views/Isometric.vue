@@ -11,12 +11,15 @@
 import Vue from 'vue';
 import * as PIXI from 'pixi.js';
 import { isoMetricGame } from '../game/isometric';
+import { assetLoader } from '../game/asset-loader';
 
 export default Vue.extend({
   name: 'isometric',
 
-  mounted() {
+  async mounted() {
     PIXI.Loader.shared.reset();
+
+    const loadedAssets = await assetLoader();
 
     // Determine the width and height of the renderer wrapper element.
     const renderCanvas = this.$refs.renderCanvas as HTMLCanvasElement;
@@ -30,6 +33,7 @@ export default Vue.extend({
         view: renderCanvas,
         backgroundColor: 0x36454f,
       }),
+      loadedAssets,
     );
   },
 });
