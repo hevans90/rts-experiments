@@ -54,7 +54,7 @@ export const isoMetricGame = (
 
   let count2 = 0;
 
-  const background = new PIXI.Container();
+  let background: PIXI.Container;
 
   let myContainer: IsometricSprite;
 
@@ -91,7 +91,41 @@ export const isoMetricGame = (
     rightArrowIndicator,
   );
 
+  if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
+    const zoomInButtonSprite = new PIXI.Sprite(
+      assetCollection['zoom-in'].texture,
+    );
+    const zoomOutButtonSprite = new PIXI.Sprite(
+      assetCollection['zoom-out'].texture,
+    );
+
+    zoomInButtonSprite.buttonMode = true;
+    zoomOutButtonSprite.buttonMode = true;
+    zoomInButtonSprite.interactive = true;
+    zoomOutButtonSprite.interactive = true;
+
+    zoomInButtonSprite.anchor.set(0.5);
+    zoomOutButtonSprite.anchor.set(0.5);
+
+    zoomInButtonSprite.position.x = width - 275;
+    zoomInButtonSprite.position.y = height - 40;
+    zoomInButtonSprite.zIndex = 2;
+
+    zoomOutButtonSprite.position.x = width - 200;
+    zoomOutButtonSprite.position.y = height - 40;
+    zoomOutButtonSprite.zIndex = 2;
+
+    zoomInButtonSprite.on('click', () => config.increaseScale());
+    zoomInButtonSprite.on('touch', () => config.increaseScale());
+
+    zoomOutButtonSprite.on('click', () => config.decreaseScale());
+    zoomOutButtonSprite.on('touch', () => config.decreaseScale());
+
+    stage.addChild(zoomInButtonSprite, zoomOutButtonSprite);
+  }
+
   const initScene = () => {
+    background = new PIXI.Container();
     for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
       for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
         background.addChild(initTile(i, j));
@@ -222,41 +256,12 @@ export const isoMetricGame = (
         }
       },
     );
-
-    if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
-      const zoomInButtonSprite = new PIXI.Sprite(
-        assetCollection['zoom-in'].texture,
-      );
-      const zoomOutButtonSprite = new PIXI.Sprite(
-        assetCollection['zoom-out'].texture,
-      );
-
-      zoomInButtonSprite.buttonMode = true;
-      zoomOutButtonSprite.buttonMode = true;
-      zoomInButtonSprite.interactive = true;
-      zoomOutButtonSprite.interactive = true;
-
-      zoomInButtonSprite.anchor.set(0.5);
-      zoomOutButtonSprite.anchor.set(0.5);
-
-      zoomInButtonSprite.position.x = width - 275;
-      zoomInButtonSprite.position.y = height - 40;
-
-      zoomOutButtonSprite.position.x = width - 200;
-      zoomOutButtonSprite.position.y = height - 40;
-
-      zoomInButtonSprite.on('click', () => config.increaseScale());
-      zoomInButtonSprite.on('touch', () => config.increaseScale());
-
-      zoomOutButtonSprite.on('click', () => config.decreaseScale());
-      zoomOutButtonSprite.on('touch', () => config.decreaseScale());
-
-      stage.addChild(zoomInButtonSprite, zoomOutButtonSprite);
-    }
   };
 
   const tearDownScene = () => {
+    background.destroy({ children: true, texture: true, baseTexture: true });
     myContainer.destroy({ children: true, texture: true, baseTexture: true });
+    myContainer.removeAllListeners();
   };
 
   const setGraphicTileColor = (ij: any[] | number[], color: string) => {
