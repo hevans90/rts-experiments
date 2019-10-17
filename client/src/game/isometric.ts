@@ -1,27 +1,25 @@
 import * as PIXI from 'pixi.js';
-
-import { IsometricSprite } from './models/isometric-sprite';
-import { IsometricGraphic } from './models/isometric-graphic';
+import { bindKeyboardListeners } from './bind-keyboard-listeners';
+import { gameConfigFactory } from './factories/game-config.factory';
 import {
   cartesianIndicator,
-  tileIndicator,
-  dragIndicatorFactory,
+  downArrowIndicatorFactory,
   draggedIndicatorFactory,
+  dragIndicatorFactory,
+  leftArrowIndicatorFactory,
+  mapVelocityIndicatorFactory,
   myContainerIndicator,
   myContainerParentIndicator,
   orientationIndicatorFactory,
-  upArrowIndicatorFactory,
-  downArrowIndicatorFactory,
-  leftArrowIndicatorFactory,
   rightArrowIndicatorFactory,
-  mapVelocityIndicatorFactory,
+  tileIndicator,
+  upArrowIndicatorFactory,
 } from './indicators';
-import { isoToIndex } from './utils/iso-to-index';
-import { indexToIso } from './utils/index-to-iso';
-import { bindKeyboardListeners } from './bind-keyboard-listeners';
 import { AssetCollection } from './models/assets';
-import { GameConfig } from './models/game-config';
-import { gameConfigFactory } from './factories/game-config.factory';
+import { IsometricGraphic } from './models/isometric-graphic';
+import { IsometricSprite } from './models/isometric-sprite';
+import { indexToIso } from './utils/index-to-iso';
+import { isoToIndex } from './utils/iso-to-index';
 
 export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
@@ -33,6 +31,15 @@ export const isoMetricGame = (
     tearDownScene();
     initScene();
   });
+
+  const Stats = require('stats.js');
+  const stats = new Stats();
+  stats.showPanel(2); // 0: fps, 1: ms, 2: mb, 3+: custom
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.left = 'unset';
+  stats.domElement.style.right = '8px';
+  stats.domElement.style.top = '8px';
+  document.body.appendChild(stats.dom);
 
   let velx = 0;
   let vely = 0;
@@ -337,7 +344,7 @@ export const isoMetricGame = (
   }, 500);
 
   function animate() {
-    requestAnimationFrame(animate);
+    stats.begin();
 
     mapVelocityIndicator.text = `Velocity: { x: ${velx}, y: ${vely} }`;
 
@@ -382,5 +389,7 @@ export const isoMetricGame = (
     }
 
     renderer.render(stage);
+    stats.end();
+    requestAnimationFrame(animate);
   }
 };
