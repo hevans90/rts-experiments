@@ -29,8 +29,7 @@ const indicatorFactory = (
 // top left indicators
 export const cartesianIndicator = indicatorFactory(10, 10);
 export const tileIndicator = indicatorFactory(10, 30);
-export const mapVelocityIndicatorFactory = (width: number) =>
-  indicatorFactory(10, 50, 'Velocity: ');
+export const mapVelocityIndicator = indicatorFactory(10, 50, 'Velocity: ');
 export const myContainerIndicator = indicatorFactory(10, 70);
 export const myContainerParentIndicator = indicatorFactory(10, 90);
 

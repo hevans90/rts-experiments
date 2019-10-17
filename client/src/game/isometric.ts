@@ -7,7 +7,7 @@ import {
   draggedIndicatorFactory,
   dragIndicatorFactory,
   leftArrowIndicatorFactory,
-  mapVelocityIndicatorFactory,
+  mapVelocityIndicator,
   myContainerIndicator,
   myContainerParentIndicator,
   orientationIndicatorFactory,
@@ -66,8 +66,6 @@ export const isoMetricGame = (
   const downArrowIndicator = downArrowIndicatorFactory(height, width);
   const leftArrowIndicator = leftArrowIndicatorFactory(height, width);
   const rightArrowIndicator = rightArrowIndicatorFactory(height, width);
-
-  const mapVelocityIndicator = mapVelocityIndicatorFactory(width);
 
   stage.sortableChildren = true;
 
