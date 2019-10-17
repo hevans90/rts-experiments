@@ -3,6 +3,9 @@ export interface GameConfig {
   canvasWidth: number;
 
   scale: number;
+
+  increaseScale: () => void;
+  decreaseScale: () => void;
   mapRadius: number;
 
   tileGap: number;

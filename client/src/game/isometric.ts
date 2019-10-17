@@ -21,48 +21,7 @@ import { indexToIso } from './utils/index-to-iso';
 import { bindKeyboardListeners } from './bind-keyboard-listeners';
 import { AssetCollection } from './models/assets';
 import { GameConfig } from './models/game-config';
-
-const gameConfig = (canvasWidth: number, canvasHeight: number): GameConfig => ({
-  canvasHeight,
-  canvasWidth,
-  scale: 2,
-  ai: 2,
-  rotation: 1,
-  mapRadius: 18,
-  tileWidth: 16,
-  tileGap: 0.02,
-
-  get offsetX() {
-    return (this.mapRadius * 2 + 1) * this.tileWidth * this.scale;
-  },
-
-  get offsetY() {
-    return (
-      (((this.mapRadius * 2 + 1) * this.tileWidth - this.tileWidth) *
-        this.scale) /
-      this.ai
-    );
-  },
-
-  get borderL() {
-    return -this.offsetX * 2 + this.canvasWidth;
-  },
-
-  get borderR() {
-    return 0;
-  },
-
-  get borderD() {
-    return (
-      -(this.offsetY + (this.tileWidth * this.scale) / this.ai) * 2 +
-      this.canvasHeight
-    );
-  },
-
-  get borderU() {
-    return 0;
-  },
-});
+import { gameConfigFactory } from './factories/game-config.factory';
 
 export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
@@ -70,7 +29,10 @@ export const isoMetricGame = (
 ) => {
   requestAnimationFrame(animate);
 
-  const config = gameConfig(width, height);
+  const config = gameConfigFactory(width, height, () => {
+    tearDownScene();
+    initScene();
+  });
 
   let velx = 0;
   let vely = 0;
@@ -140,7 +102,6 @@ export const isoMetricGame = (
     renderer.render(background, texture);
 
     // create a single background sprite with the texture
-    // const myContainer = new PIXI.Sprite(texture);
     myContainer = new PIXI.Sprite(texture) as IsometricSprite;
 
     stage.addChild(myContainer);
@@ -277,14 +238,18 @@ export const isoMetricGame = (
       zoomOutButtonSprite.position.x = width - 200;
       zoomOutButtonSprite.position.y = height - 40;
 
-      zoomInButtonSprite.on('click', () => (config.scale += 1));
-      zoomInButtonSprite.on('touch', () => (config.scale += 1));
+      zoomInButtonSprite.on('click', () => config.increaseScale());
+      zoomInButtonSprite.on('touch', () => config.increaseScale());
 
-      zoomOutButtonSprite.on('click', () => (config.scale -= 1));
-      zoomOutButtonSprite.on('touch', () => (config.scale -= 1));
+      zoomOutButtonSprite.on('click', () => config.decreaseScale());
+      zoomOutButtonSprite.on('touch', () => config.decreaseScale());
 
       stage.addChild(zoomInButtonSprite, zoomOutButtonSprite);
     }
+  };
+
+  const tearDownScene = () => {
+    myContainer.destroy({ children: true, texture: true, baseTexture: true });
   };
 
   const setGraphicTileColor = (ij: any[] | number[], color: string) => {
