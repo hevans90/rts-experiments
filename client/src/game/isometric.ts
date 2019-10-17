@@ -56,6 +56,7 @@ export const isoMetricGame = (
   let count2 = 0;
 
   let background: PIXI.Container;
+  let foreground: PIXI.Container;
 
   let myContainer: IsometricSprite;
 
@@ -127,24 +128,45 @@ export const isoMetricGame = (
 
   const initScene = () => {
     background = new PIXI.Container();
+    foreground = new PIXI.Container();
+
     for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
       for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
+        console.log(i, j);
         background.addChild(initTile(i, j));
         setTile(i, j);
+
+        if (assetCollection.dirt_tile) {
+          const dirtTileSprite = new PIXI.Sprite(
+            assetCollection.dirt_tile.texture,
+          );
+          dirtTileSprite.position.x = indexToIso(
+            i + 1 - config.tileGap,
+            j + config.tileGap,
+            config,
+          )[0];
+          dirtTileSprite.position.y = indexToIso(
+            i + 1 - config.tileGap,
+            j + config.tileGap,
+            config,
+          )[1];
+          foreground.addChild(dirtTileSprite);
+        }
       }
     }
 
     // render the tilemap to a render texture
-    const texture = PIXI.RenderTexture.create({
+    const backgroundTexture = PIXI.RenderTexture.create({
       width: config.offsetX * 2,
       height:
         (config.offsetY + (config.tileWidth * config.scale) / config.ai) * 2,
     });
 
-    renderer.render(background, texture);
+    renderer.render(background, backgroundTexture);
+    renderer.render(foreground, backgroundTexture);
 
     // create a single background sprite with the texture
-    myContainer = new PIXI.Sprite(texture) as IsometricSprite;
+    myContainer = new PIXI.Sprite(backgroundTexture) as IsometricSprite;
 
     stage.addChild(myContainer);
     myContainer.x = -400;
@@ -178,7 +200,7 @@ export const isoMetricGame = (
           isoToIndex(myContainer.sx, myContainer.sy, config),
           '0xFF0000',
         );
-        renderer.render(background, texture);
+        renderer.render(background, backgroundTexture);
       } else {
         velx = Math.floor(myContainer.position.x - delx);
         vely = Math.floor(myContainer.position.y - dely);
@@ -380,19 +402,6 @@ export const isoMetricGame = (
     if (vely < 0) {
       myContainer.position.y += vely;
       vely += 1;
-    }
-
-    if (myContainer.position.x < config.borderL) {
-      myContainer.position.x = config.borderL;
-    }
-    if (myContainer.position.x > config.borderR) {
-      myContainer.position.x = config.borderR;
-    }
-    if (myContainer.position.y < config.borderD) {
-      myContainer.position.y = config.borderD;
-    }
-    if (myContainer.position.y > config.borderU) {
-      myContainer.position.y = config.borderU;
     }
 
     renderer.render(stage);
