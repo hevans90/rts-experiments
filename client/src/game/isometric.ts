@@ -7,7 +7,6 @@ import {
   draggedIndicatorFactory,
   dragIndicatorFactory,
   leftArrowIndicatorFactory,
-  mapVelocityIndicator,
   myContainerIndicator,
   myContainerParentIndicator,
   orientationIndicatorFactory,
@@ -20,7 +19,6 @@ import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricSprite } from './models/isometric-sprite';
 import { indexToIso } from './utils/index-to-iso';
 import { isoToIndex } from './utils/iso-to-index';
-import { KeyboardItem } from './utils/keyboard';
 
 export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
@@ -55,10 +53,10 @@ export const isoMetricGame = (
 
   let count2 = 0;
 
-  let background: PIXI.Container;
-  let foreground: PIXI.Container;
+  let background: IsometricSprite;
+  let foreground: IsometricSprite;
 
-  let myContainer: IsometricSprite;
+  let groundContainer: IsometricSprite;
 
   const orientationIndicator = orientationIndicatorFactory(height);
   const dragIndicator = dragIndicatorFactory(height);
@@ -69,8 +67,6 @@ export const isoMetricGame = (
   const leftArrowIndicator = leftArrowIndicatorFactory(height, width);
   const rightArrowIndicator = rightArrowIndicatorFactory(height, width);
 
-  let keyboardListeners: KeyboardItem[];
-
   stage.sortableChildren = true;
 
   stage.addChild(
@@ -79,7 +75,6 @@ export const isoMetricGame = (
     tileIndicator,
     myContainerIndicator,
     myContainerParentIndicator,
-    mapVelocityIndicator,
 
     // bottom left indicators
     draggedIndicator,
@@ -127,8 +122,9 @@ export const isoMetricGame = (
   }
 
   const initScene = () => {
-    background = new PIXI.Container();
-    foreground = new PIXI.Container();
+    background = new PIXI.Container() as IsometricSprite;
+    foreground = new PIXI.Container() as IsometricSprite;
+    groundContainer = new PIXI.Container() as IsometricSprite;
 
     for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
       for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
@@ -144,45 +140,30 @@ export const isoMetricGame = (
             i + 1 - config.tileGap,
             j + config.tileGap,
             config,
-          )[0];
+          )[0]/2;
           dirtTileSprite.position.y = indexToIso(
             i + 1 - config.tileGap,
             j + config.tileGap,
             config,
-          )[1];
+          )[1]/2;
           foreground.addChild(dirtTileSprite);
         }
       }
     }
 
-    // render the tilemap to a render texture
-    const backgroundTexture = PIXI.RenderTexture.create({
-      width: config.offsetX * 2,
-      height:
-        (config.offsetY + (config.tileWidth * config.scale) / config.ai) * 2,
-    });
+    groundContainer.addChild(background, foreground);
 
-    renderer.render(background, backgroundTexture);
-    renderer.render(foreground, backgroundTexture);
+    stage.addChild(groundContainer);
 
-    // create a single background sprite with the texture
-    myContainer = new PIXI.Sprite(backgroundTexture) as IsometricSprite;
-
-    stage.addChild(myContainer);
-    myContainer.x = -400;
-    myContainer.y = -400;
-
-    myContainer.interactive = true;
+    groundContainer.interactive = true;
 
     const mouseDownInteraction = ({
       data,
     }: PIXI.interaction.InteractionEvent) => {
       dragging = true;
       dragIndicator.text = 'yay';
-      myContainer.sx =
-        data.getLocalPosition(myContainer).x * myContainer.scale.x;
-      myContainer.sy =
-        data.getLocalPosition(myContainer).y * myContainer.scale.y;
+      groundContainer.sx = data.getLocalPosition(groundContainer).x * groundContainer.scale.x;
+      groundContainer.sy = data.getLocalPosition(groundContainer).y * groundContainer.scale.y;
       delx = dely = 0;
       velx = vely = 0;
       draggedx = 0;
@@ -197,13 +178,12 @@ export const isoMetricGame = (
 
       if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
         setGraphicTileColor(
-          isoToIndex(myContainer.sx, myContainer.sy, config),
+          isoToIndex(groundContainer.sx, groundContainer.sy, config),
           '0xFF0000',
         );
-        renderer.render(background, backgroundTexture);
       } else {
-        velx = Math.floor(myContainer.position.x - delx);
-        vely = Math.floor(myContainer.position.y - dely);
+        velx = Math.floor(groundContainer.position.x - delx);
+        vely = Math.floor(groundContainer.position.y - dely);
         delx = dely = 0;
       }
     };
@@ -211,34 +191,34 @@ export const isoMetricGame = (
     const mouseMoveInteraction = ({
       data,
     }: PIXI.interaction.InteractionEvent) => {
-      const newPosition = data.getLocalPosition(myContainer);
+      const newPosition = data.getLocalPosition(groundContainer);
       const c = isoToIndex(newPosition.x, newPosition.y, config);
 
       if (dragging) {
-        const parentPosition = data.getLocalPosition(myContainer.parent);
+        const parentPosition = data.getLocalPosition(groundContainer.parent);
 
         draggedIndicator.text = `dragged: { x: ${draggedx.toFixed(
           2,
         )}, y: ${draggedy.toFixed(2)}}`;
 
         myContainerIndicator.text = `myContainer = { x: ${(
-          newPosition.x - myContainer.sx
-        ).toFixed(2)}, y: ${(newPosition.y - myContainer.sy).toFixed(2)}}`;
+          newPosition.x - groundContainer.sx
+        ).toFixed(2)}, y: ${(newPosition.y - groundContainer.sy).toFixed(2)}}`;
 
-        myContainerParentIndicator.text = `myContainer.parent = { x: ${data
-          .getLocalPosition(myContainer.parent)
+        myContainerParentIndicator.text = `background.parent = { x: ${data
+          .getLocalPosition(groundContainer.parent)
           .x.toFixed(2)}, y: ${data
-          .getLocalPosition(myContainer.parent)
+          .getLocalPosition(groundContainer.parent)
           .y.toFixed(2)} }`;
 
-        draggedx += myContainer.position.x / 1000;
-        draggedy += myContainer.position.y / 1000;
+        draggedx += groundContainer.position.x / 1000;
+        draggedy += groundContainer.position.y / 1000;
 
-        delx = myContainer.position.x;
-        dely = myContainer.position.y;
+        delx = groundContainer.position.x;
+        dely = groundContainer.position.y;
 
-        myContainer.position.x = parentPosition.x - myContainer.sx;
-        myContainer.position.y = parentPosition.y - myContainer.sy;
+        groundContainer.position.x = parentPosition.x - groundContainer.sx;
+        groundContainer.position.y = parentPosition.y - groundContainer.sy;
       } else if (!isNaN(newPosition.x) && !isNaN(newPosition.y)) {
         cartesianIndicator.text = `${newPosition.x.toFixed(
           2,
@@ -247,16 +227,16 @@ export const isoMetricGame = (
       }
     };
 
-    myContainer.addListener('mousedown', mouseDownInteraction);
-    myContainer.addListener('touchstart', mouseDownInteraction);
+    groundContainer.addListener('mousedown', mouseDownInteraction);
+    groundContainer.addListener('touchstart', mouseDownInteraction);
 
-    myContainer.addListener('mouseup', mouseUpInteraction);
-    myContainer.addListener('touchend', mouseUpInteraction);
+    groundContainer.addListener('mouseup', mouseUpInteraction);
+    groundContainer.addListener('touchend', mouseUpInteraction);
 
-    myContainer.addListener('mousemove', mouseMoveInteraction);
-    myContainer.addListener('touchmove', mouseMoveInteraction);
+    groundContainer.addListener('mousemove', mouseMoveInteraction);
+    groundContainer.addListener('touchmove', mouseMoveInteraction);
 
-    keyboardListeners = bindKeyboardListeners(
+    bindKeyboardListeners(
       upArrowIndicator,
       downArrowIndicator,
       rightArrowIndicator,
@@ -282,10 +262,8 @@ export const isoMetricGame = (
   };
 
   const tearDownScene = () => {
-    background.destroy({ children: true, texture: true, baseTexture: true });
-    myContainer.destroy({ children: true, texture: true, baseTexture: true });
-    myContainer.removeAllListeners();
-    keyboardListeners.forEach(item => item.unsubscribe());
+    groundContainer.destroy({ children: true, texture: true, baseTexture: true });
+    groundContainer.removeAllListeners();
   };
 
   const setGraphicTileColor = (ij: any[] | number[], color: string) => {
@@ -375,8 +353,6 @@ export const isoMetricGame = (
   function animate() {
     stats.begin();
 
-    mapVelocityIndicator.text = `Velocity: { x: ${velx}, y: ${vely} }`;
-
     if (dragging) {
       count2 += 1;
       dragIndicator.text = `dragging for ${count2} animation frames`;
@@ -385,22 +361,22 @@ export const isoMetricGame = (
     }
 
     if (velx > 0) {
-      myContainer.position.x += velx;
+      groundContainer.position.x += velx;
       velx -= 1;
     }
 
     if (velx < 0) {
-      myContainer.position.x += velx;
+      groundContainer.position.x += velx;
       velx += 1;
     }
 
     if (vely > 0) {
-      myContainer.position.y += vely;
+      groundContainer.position.y += vely;
       vely -= 1;
     }
 
     if (vely < 0) {
-      myContainer.position.y += vely;
+      groundContainer.position.y += vely;
       vely += 1;
     }
 

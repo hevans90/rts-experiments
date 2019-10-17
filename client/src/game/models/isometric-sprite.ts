@@ -1,3 +1,3 @@
 import * as PIXI from 'pixi.js';
 
-export type IsometricSprite = PIXI.Sprite & { sx: number; sy: number };
+export type IsometricSprite = PIXI.Container & { sx: number; sy: number };
