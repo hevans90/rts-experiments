@@ -48,14 +48,10 @@ export const keyboard = ({
     if (event.key === key.value) {
       if (key.isUp && key.press) {
         key.press();
-        console.log(`${key.value} PRESSED`);
+
         if (key.holdDown) {
           holdDownHandler = setInterval(
-            () =>
-              key.holdDown
-                ? (key.holdDown() as any) &&
-                  console.warn(`${key.value} HELD DOWN`)
-                : undefined,
+            () => (key.holdDown ? (key.holdDown() as any) : undefined),
             17,
           );
         }
@@ -70,7 +66,6 @@ export const keyboard = ({
     if (event.key === key.value) {
       if (key.isDown && key.release) {
         key.release();
-        console.log(`${key.value} RELEASED`);
 
         if (key.holdDown) {
           clearInterval(holdDownHandler);

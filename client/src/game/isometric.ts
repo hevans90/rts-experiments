@@ -132,7 +132,6 @@ export const isoMetricGame = ({
     const mouseDownInteraction = ({
       data,
     }: PIXI.interaction.InteractionEvent) => {
-      console.log('MOUSE DOWN');
       dragging = true;
       dragIndicator.text = 'yay';
       myContainer.sx =
@@ -152,8 +151,6 @@ export const isoMetricGame = ({
       draggedIndicator.text = '';
 
       if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
-        console.log('MOUSE UP - NO DRAG');
-
         setGraphicTileColor(
           isoToIndex(
             myContainer.sx,
@@ -172,7 +169,6 @@ export const isoMetricGame = ({
         velx = Math.floor(myContainer.position.x - delx);
         vely = Math.floor(myContainer.position.y - dely);
         delx = dely = 0;
-        console.log('MOUSE UP - DRAG');
       }
     };
 
@@ -357,7 +353,6 @@ export const isoMetricGame = ({
     if (velx > 0) {
       myContainer.position.x += velx;
       velx -= 1;
-      // console.log(velx)
     }
 
     if (velx < 0) {
