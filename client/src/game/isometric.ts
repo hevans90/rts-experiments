@@ -20,6 +20,49 @@ import { isoToIndex } from './utils/iso-to-index';
 import { indexToIso } from './utils/index-to-iso';
 import { bindKeyboardListeners } from './bind-keyboard-listeners';
 import { AssetCollection } from './models/assets';
+import { GameConfig } from './models/game-config';
+
+const gameConfig = (canvasWidth: number, canvasHeight: number): GameConfig => ({
+  canvasHeight,
+  canvasWidth,
+  scale: 2,
+  ai: 2,
+  rotation: 1,
+  mapRadius: 18,
+  tileWidth: 16,
+  tileGap: 0.02,
+
+  get offsetX() {
+    return (this.mapRadius * 2 + 1) * this.tileWidth * this.scale;
+  },
+
+  get offsetY() {
+    return (
+      (((this.mapRadius * 2 + 1) * this.tileWidth - this.tileWidth) *
+        this.scale) /
+      this.ai
+    );
+  },
+
+  get borderL() {
+    return -this.offsetX * 2 + this.canvasWidth;
+  },
+
+  get borderR() {
+    return 0;
+  },
+
+  get borderD() {
+    return (
+      -(this.offsetY + (this.tileWidth * this.scale) / this.ai) * 2 +
+      this.canvasHeight
+    );
+  },
+
+  get borderU() {
+    return 0;
+  },
+});
 
 export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
@@ -27,32 +70,7 @@ export const isoMetricGame = (
 ) => {
   requestAnimationFrame(animate);
 
-  const mapRadius = 18;
-
-  const tileWidth = 16;
-
-  const tileGap = 0.02; // gap between tiles
-
-  /**
-   * **radians**
-   *
-   * rotation of 1 gives you 45 Degrees
-   */
-  const rotation = 1;
-
-  /**
-   * 2 gives you isometric view
-   */
-  const ai = 2;
-
-  let scale = 2.0;
-  const offsetX = (mapRadius * 2 + 1) * tileWidth * scale;
-  const offsetY = (((mapRadius * 2 + 1) * tileWidth - tileWidth) * scale) / ai; // ox/ai // (h - at) / 2;
-
-  const borderL = -offsetX * 2 + width;
-  const borderR = 0;
-  const borderD = -(offsetY + (tileWidth * scale) / ai) * 2 + height;
-  const borderU = 0;
+  const config = gameConfig(width, height);
 
   let velx = 0;
   let vely = 0;
@@ -105,8 +123,8 @@ export const isoMetricGame = (
   );
 
   const initScene = () => {
-    for (let i = -mapRadius; i <= mapRadius; i++) {
-      for (let j = -mapRadius; j <= mapRadius; j++) {
+    for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
+      for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
         background.addChild(initTile(i, j));
         setTile(i, j);
       }
@@ -114,8 +132,9 @@ export const isoMetricGame = (
 
     // render the tilemap to a render texture
     const texture = PIXI.RenderTexture.create({
-      width: offsetX * 2,
-      height: (offsetY + (tileWidth * scale) / ai) * 2,
+      width: config.offsetX * 2,
+      height:
+        (config.offsetY + (config.tileWidth * config.scale) / config.ai) * 2,
     });
 
     renderer.render(background, texture);
@@ -153,16 +172,7 @@ export const isoMetricGame = (
 
       if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
         setGraphicTileColor(
-          isoToIndex(
-            myContainer.sx,
-            myContainer.sy,
-            scale,
-            tileWidth,
-            offsetX,
-            offsetY,
-            rotation,
-            ai,
-          ),
+          isoToIndex(myContainer.sx, myContainer.sy, config),
           '0xFF0000',
         );
         renderer.render(background, texture);
@@ -177,16 +187,7 @@ export const isoMetricGame = (
       data,
     }: PIXI.interaction.InteractionEvent) => {
       const newPosition = data.getLocalPosition(myContainer);
-      const c = isoToIndex(
-        newPosition.x,
-        newPosition.y,
-        scale,
-        tileWidth,
-        offsetX,
-        offsetY,
-        rotation,
-        ai,
-      );
+      const c = isoToIndex(newPosition.x, newPosition.y, config);
 
       if (dragging) {
         const parentPosition = data.getLocalPosition(myContainer.parent);
@@ -276,11 +277,11 @@ export const isoMetricGame = (
       zoomOutButtonSprite.position.x = width - 200;
       zoomOutButtonSprite.position.y = height - 40;
 
-      zoomInButtonSprite.on('click', () => (scale += 1));
-      zoomInButtonSprite.on('touch', () => (scale += 1));
+      zoomInButtonSprite.on('click', () => (config.scale += 1));
+      zoomInButtonSprite.on('touch', () => (config.scale += 1));
 
-      zoomOutButtonSprite.on('click', () => (scale -= 1));
-      zoomOutButtonSprite.on('touch', () => (scale -= 1));
+      zoomOutButtonSprite.on('click', () => (config.scale -= 1));
+      zoomOutButtonSprite.on('touch', () => (config.scale -= 1));
 
       stage.addChild(zoomInButtonSprite, zoomOutButtonSprite);
     }
@@ -289,7 +290,10 @@ export const isoMetricGame = (
   const setGraphicTileColor = (ij: any[] | number[], color: string) => {
     const i = ij[0];
     const j = ij[1];
-    const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
+    const num =
+      (i + config.mapRadius) * (2 * config.mapRadius + 1) +
+      j +
+      config.mapRadius;
     const gr = background.getChildAt(num) as IsometricGraphic;
 
     gr.clear();
@@ -308,46 +312,10 @@ export const isoMetricGame = (
   const initTile = (i: number, j: number) => {
     const gr = new PIXI.Graphics() as IsometricGraphic;
 
-    gr.c1 = indexToIso(
-      i + 1 - tileGap,
-      j + tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
-    gr.c2 = indexToIso(
-      i + 1 - tileGap,
-      j + 1 - tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
-    gr.c3 = indexToIso(
-      i + tileGap,
-      j + 1 - tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
-    gr.c4 = indexToIso(
-      i + tileGap,
-      j + tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
+    gr.c1 = indexToIso(i + 1 - config.tileGap, j + config.tileGap, config);
+    gr.c2 = indexToIso(i + 1 - config.tileGap, j + 1 - config.tileGap, config);
+    gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
+    gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
 
     gr.hitArea = new PIXI.Polygon([
       new PIXI.Point(gr.c1[0], gr.c1[1]),
@@ -360,49 +328,16 @@ export const isoMetricGame = (
   };
 
   const setTile = (i: number, j: number) => {
-    const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
+    const num =
+      (i + config.mapRadius) * (2 * config.mapRadius + 1) +
+      j +
+      config.mapRadius;
     const gr = background.getChildAt(num) as IsometricGraphic;
 
-    gr.c1 = indexToIso(
-      i + 1 - tileGap,
-      j + tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
-    gr.c2 = indexToIso(
-      i + 1 - tileGap,
-      j + 1 - tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
-    gr.c3 = indexToIso(
-      i + tileGap,
-      j + 1 - tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
-    gr.c4 = indexToIso(
-      i + tileGap,
-      j + tileGap,
-      scale,
-      tileWidth,
-      offsetX,
-      offsetY,
-      rotation,
-      ai,
-    );
+    gr.c1 = indexToIso(i + 1 - config.tileGap, j + config.tileGap, config);
+    gr.c2 = indexToIso(i + 1 - config.tileGap, j + 1 - config.tileGap, config);
+    gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
+    gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
 
     let c = '009900';
     if (j < -7) {
@@ -468,17 +403,17 @@ export const isoMetricGame = (
       vely += 1;
     }
 
-    if (myContainer.position.x < borderL) {
-      myContainer.position.x = borderL;
+    if (myContainer.position.x < config.borderL) {
+      myContainer.position.x = config.borderL;
     }
-    if (myContainer.position.x > borderR) {
-      myContainer.position.x = borderR;
+    if (myContainer.position.x > config.borderR) {
+      myContainer.position.x = config.borderR;
     }
-    if (myContainer.position.y < borderD) {
-      myContainer.position.y = borderD;
+    if (myContainer.position.y < config.borderD) {
+      myContainer.position.y = config.borderD;
     }
-    if (myContainer.position.y > borderU) {
-      myContainer.position.y = borderU;
+    if (myContainer.position.y > config.borderU) {
+      myContainer.position.y = config.borderU;
     }
 
     renderer.render(stage);
