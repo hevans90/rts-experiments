@@ -7,7 +7,7 @@ export const isoToIndex = (
   offsetY: number,
   rotation: number,
   ai: number,
-) => {
+): [number, number] => {
   const b = scale * tileWidth;
 
   const s = x - offsetX;

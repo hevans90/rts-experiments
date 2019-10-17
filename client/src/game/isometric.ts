@@ -17,6 +17,7 @@ import {
   mapVelocityIndicatorFactory,
 } from './indicators';
 import { isoToIndex } from './utils/iso-to-index';
+import { indexToIso } from './utils/index-to-iso';
 import { bindKeyboardListeners } from './bind-keyboard-listeners';
 import { AssetCollection } from './models/assets';
 
@@ -44,7 +45,7 @@ export const isoMetricGame = (
    */
   const ai = 2;
 
-  const scale = 2.0;
+  let scale = 2.0;
   const offsetX = (mapRadius * 2 + 1) * tileWidth * scale;
   const offsetY = (((mapRadius * 2 + 1) * tileWidth - tileWidth) * scale) / ai; // ox/ai // (h - at) / 2;
 
@@ -252,6 +253,37 @@ export const isoMetricGame = (
         }
       },
     );
+
+    if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
+      const zoomInButtonSprite = new PIXI.Sprite(
+        assetCollection['zoom-in'].texture,
+      );
+      const zoomOutButtonSprite = new PIXI.Sprite(
+        assetCollection['zoom-out'].texture,
+      );
+
+      zoomInButtonSprite.buttonMode = true;
+      zoomOutButtonSprite.buttonMode = true;
+      zoomInButtonSprite.interactive = true;
+      zoomOutButtonSprite.interactive = true;
+
+      zoomInButtonSprite.anchor.set(0.5);
+      zoomOutButtonSprite.anchor.set(0.5);
+
+      zoomInButtonSprite.position.x = width - 275;
+      zoomInButtonSprite.position.y = height - 40;
+
+      zoomOutButtonSprite.position.x = width - 200;
+      zoomOutButtonSprite.position.y = height - 40;
+
+      zoomInButtonSprite.on('click', () => (scale += 1));
+      zoomInButtonSprite.on('touch', () => (scale += 1));
+
+      zoomOutButtonSprite.on('click', () => (scale -= 1));
+      zoomOutButtonSprite.on('touch', () => (scale -= 1));
+
+      stage.addChild(zoomInButtonSprite, zoomOutButtonSprite);
+    }
   };
 
   const setGraphicTileColor = (ij: any[] | number[], color: string) => {
@@ -276,10 +308,46 @@ export const isoMetricGame = (
   const initTile = (i: number, j: number) => {
     const gr = new PIXI.Graphics() as IsometricGraphic;
 
-    gr.c1 = indexToIso(i + 1 - tileGap, j + tileGap);
-    gr.c2 = indexToIso(i + 1 - tileGap, j + 1 - tileGap);
-    gr.c3 = indexToIso(i + tileGap, j + 1 - tileGap);
-    gr.c4 = indexToIso(i + tileGap, j + tileGap);
+    gr.c1 = indexToIso(
+      i + 1 - tileGap,
+      j + tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
+    gr.c2 = indexToIso(
+      i + 1 - tileGap,
+      j + 1 - tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
+    gr.c3 = indexToIso(
+      i + tileGap,
+      j + 1 - tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
+    gr.c4 = indexToIso(
+      i + tileGap,
+      j + tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
 
     gr.hitArea = new PIXI.Polygon([
       new PIXI.Point(gr.c1[0], gr.c1[1]),
@@ -295,10 +363,46 @@ export const isoMetricGame = (
     const num = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
     const gr = background.getChildAt(num) as IsometricGraphic;
 
-    gr.c1 = indexToIso(i + 1 - tileGap, j + tileGap);
-    gr.c2 = indexToIso(i + 1 - tileGap, j + 1 - tileGap);
-    gr.c3 = indexToIso(i + tileGap, j + 1 - tileGap);
-    gr.c4 = indexToIso(i + tileGap, j + tileGap);
+    gr.c1 = indexToIso(
+      i + 1 - tileGap,
+      j + tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
+    gr.c2 = indexToIso(
+      i + 1 - tileGap,
+      j + 1 - tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
+    gr.c3 = indexToIso(
+      i + tileGap,
+      j + 1 - tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
+    gr.c4 = indexToIso(
+      i + tileGap,
+      j + tileGap,
+      scale,
+      tileWidth,
+      offsetX,
+      offsetY,
+      rotation,
+      ai,
+    );
 
     let c = '009900';
     if (j < -7) {
@@ -318,12 +422,6 @@ export const isoMetricGame = (
       c = '000099';
     }
     setGraphicTileColor([i, j], '0x' + c);
-  };
-
-  const indexToIso = (i: number, j: number): [number, number] => {
-    const x = offsetX + (i - j * rotation) * scale * tileWidth;
-    const y = offsetY + ((j + i * rotation) * scale * tileWidth) / ai;
-    return [x, y];
   };
 
   initScene();
