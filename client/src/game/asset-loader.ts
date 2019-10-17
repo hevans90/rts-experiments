@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { AssetKey, assetKeys, AssetCollection } from './models/assets';
+import { AssetCollection, AssetKey, assetKeys } from './models/assets';
 
 export const assetPath = (key: AssetKey) => require(`../assets/${key}.png`);
 
@@ -11,11 +11,9 @@ const loadProgressHandler = (
   resource: PIXI.LoaderResource,
 ) => {
   // Display the file `url` currently being loaded
-  console.log('loading: ' + resource.url);
-
+  // console.log('loading: ' + resource.url);
   // Display the percentage of files currently loaded
-  console.log('progress: ' + loader.progress + '%');
-
+  // console.log('progress: ' + loader.progress + '%');
   // If you gave your files names as the first argument
   // of the `add` method, you can access them like this
   // console.log("loading: " + resource.name);
