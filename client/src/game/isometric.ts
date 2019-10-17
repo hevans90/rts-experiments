@@ -18,6 +18,7 @@ import {
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricSprite } from './models/isometric-sprite';
+import { zoomButtonsFactory } from './ui/zoom-buttons';
 import { indexToIso } from './utils/index-to-iso';
 import { isoToIndex } from './utils/iso-to-index';
 import { KeyboardItem } from './utils/keyboard';
@@ -92,39 +93,6 @@ export const isoMetricGame = (
     rightArrowIndicator,
   );
 
-  if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
-    const zoomInButtonSprite = new PIXI.Sprite(
-      assetCollection['zoom-in'].texture,
-    );
-    const zoomOutButtonSprite = new PIXI.Sprite(
-      assetCollection['zoom-out'].texture,
-    );
-
-    zoomInButtonSprite.buttonMode = true;
-    zoomOutButtonSprite.buttonMode = true;
-    zoomInButtonSprite.interactive = true;
-    zoomOutButtonSprite.interactive = true;
-
-    zoomInButtonSprite.anchor.set(0.5);
-    zoomOutButtonSprite.anchor.set(0.5);
-
-    zoomInButtonSprite.position.x = width - 275;
-    zoomInButtonSprite.position.y = height - 40;
-    zoomInButtonSprite.zIndex = 2;
-
-    zoomOutButtonSprite.position.x = width - 200;
-    zoomOutButtonSprite.position.y = height - 40;
-    zoomOutButtonSprite.zIndex = 2;
-
-    zoomInButtonSprite.on('click', () => config.increaseScale());
-    zoomInButtonSprite.on('touch', () => config.increaseScale());
-
-    zoomOutButtonSprite.on('click', () => config.decreaseScale());
-    zoomOutButtonSprite.on('touch', () => config.decreaseScale());
-
-    stage.addChild(zoomInButtonSprite, zoomOutButtonSprite);
-  }
-
   const initScene = () => {
     background = new PIXI.Container();
     for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
@@ -132,6 +100,19 @@ export const isoMetricGame = (
         background.addChild(initTile(i, j));
         setTile(i, j);
       }
+    }
+    if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
+      stage.addChild(
+        ...zoomButtonsFactory(
+          {
+            'zoom-in': assetCollection['zoom-in'],
+            'zoom-out': assetCollection['zoom-out'],
+          },
+          width,
+          height,
+          config,
+        ),
+      );
     }
 
     // render the tilemap to a render texture
