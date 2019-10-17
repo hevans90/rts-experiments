@@ -1,13 +1,13 @@
-interface KeyboardItem {
+export interface KeyboardItem {
   value: string;
   isDown: boolean;
   isUp: boolean;
+  unsubscribe: () => void;
   press?: () => void;
   holdDown?: () => void;
   release?: () => void;
   downHandler?: (event: any) => void;
   upHandler?: (event: any) => void;
-  unsubscribe?: () => void;
 }
 
 export const keyboard = ({
@@ -33,7 +33,7 @@ export const keyboard = ({
    */
   holdDown?: () => void;
 }): KeyboardItem => {
-  const key: KeyboardItem = {
+  const key: Partial<KeyboardItem> = {
     value,
     isDown: false,
     isUp: true,
@@ -90,5 +90,5 @@ export const keyboard = ({
     window.removeEventListener('keyup', upListener);
   };
 
-  return key;
+  return key as KeyboardItem;
 };

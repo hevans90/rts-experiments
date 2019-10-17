@@ -20,6 +20,7 @@ import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricSprite } from './models/isometric-sprite';
 import { indexToIso } from './utils/index-to-iso';
 import { isoToIndex } from './utils/iso-to-index';
+import { KeyboardItem } from './utils/keyboard';
 
 export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
@@ -66,6 +67,8 @@ export const isoMetricGame = (
   const downArrowIndicator = downArrowIndicatorFactory(height, width);
   const leftArrowIndicator = leftArrowIndicatorFactory(height, width);
   const rightArrowIndicator = rightArrowIndicatorFactory(height, width);
+
+  let keyboardListeners: KeyboardItem[];
 
   stage.sortableChildren = true;
 
@@ -231,7 +234,7 @@ export const isoMetricGame = (
     myContainer.addListener('mousemove', mouseMoveInteraction);
     myContainer.addListener('touchmove', mouseMoveInteraction);
 
-    bindKeyboardListeners(
+    keyboardListeners = bindKeyboardListeners(
       upArrowIndicator,
       downArrowIndicator,
       rightArrowIndicator,
@@ -260,6 +263,7 @@ export const isoMetricGame = (
     background.destroy({ children: true, texture: true, baseTexture: true });
     myContainer.destroy({ children: true, texture: true, baseTexture: true });
     myContainer.removeAllListeners();
+    keyboardListeners.forEach(item => item.unsubscribe());
   };
 
   const setGraphicTileColor = (ij: any[] | number[], color: string) => {

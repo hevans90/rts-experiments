@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { keyboard } from './utils/keyboard';
 import { IndicatorColor } from './indicators';
+import { keyboard } from './utils/keyboard';
 
 export const bindKeyboardListeners = (
   upArrowIndicator: PIXI.Text,
@@ -13,7 +13,7 @@ export const bindKeyboardListeners = (
     hardSetX?: number;
     hardSetY?: number;
   }) => void,
-) => {
+) => [
   keyboard({
     value: 'ArrowUp',
     press: () => {
@@ -25,7 +25,7 @@ export const bindKeyboardListeners = (
       emitVelocityChange({ hardSetY: 0 });
     },
     holdDown: () => emitVelocityChange({ dvely: 2 }),
-  });
+  }),
 
   keyboard({
     value: 'ArrowDown',
@@ -38,7 +38,7 @@ export const bindKeyboardListeners = (
       emitVelocityChange({ hardSetY: 0 });
     },
     holdDown: () => emitVelocityChange({ dvely: -2 }),
-  });
+  }),
 
   keyboard({
     value: 'ArrowRight',
@@ -51,7 +51,7 @@ export const bindKeyboardListeners = (
       emitVelocityChange({ hardSetX: 0 });
     },
     holdDown: () => emitVelocityChange({ dvelx: -2 }),
-  });
+  }),
 
   keyboard({
     value: 'ArrowLeft',
@@ -64,5 +64,5 @@ export const bindKeyboardListeners = (
       emitVelocityChange({ hardSetX: 0 });
     },
     holdDown: () => emitVelocityChange({ dvelx: 2 }),
-  });
-};
+  }),
+];
