@@ -18,6 +18,7 @@ import {
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricSprite } from './models/isometric-sprite';
+import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
 import { indexToIso } from './utils/index-to-iso';
 import { isoToIndex } from './utils/iso-to-index';
@@ -34,14 +35,7 @@ export const isoMetricGame = (
     initScene();
   });
 
-  const Stats = require('stats.js');
-  const stats = new Stats();
-  stats.showPanel(2); // 0: fps, 1: ms, 2: mb, 3+: custom
-  stats.domElement.style.position = 'absolute';
-  stats.domElement.style.left = 'unset';
-  stats.domElement.style.right = '8px';
-  stats.domElement.style.top = '8px';
-  document.body.appendChild(stats.dom);
+  const stats = performanceStatsFactory();
 
   let velx = 0;
   let vely = 0;
