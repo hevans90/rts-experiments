@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
-import { IsometricSprite } from '../models/isometric-sprite';
+import { IsometricStack } from '../models/isometric-sprite';
 
 export const mouseDownInteraction = (
   { data }: PIXI.interaction.InteractionEvent,
-  myContainer: IsometricSprite,
+  myContainer: IsometricStack,
 ) => ({
   dragIndicatorText: 'yay',
   dragging: true,
@@ -13,8 +13,9 @@ export const mouseDownInteraction = (
   dely: 0,
   velx: 0,
   vely: 0,
-  newContainerSelectedX:
-    data.getLocalPosition(myContainer).x * myContainer.scale.x,
-  newContainerSelectedY:
-    data.getLocalPosition(myContainer).y * myContainer.scale.y,
+  selected: {
+    x: data.getLocalPosition(myContainer).x * myContainer.scale.x,
+    y: data.getLocalPosition(myContainer).y * myContainer.scale.y,
+    z: 0,
+  },
 });

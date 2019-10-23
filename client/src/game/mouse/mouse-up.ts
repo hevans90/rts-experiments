@@ -1,12 +1,10 @@
-import { GameConfig } from '../models/game-config';
-import { IsometricSprite } from '../models/isometric-sprite';
+import { IsometricStack } from '../models/isometric-sprite';
 
 export const mouseUpInteraction = (
   draggedx: number,
   draggedy: number,
   callback: () => void,
-  myContainer: IsometricSprite,
-  config: GameConfig,
+  myContainer: IsometricStack,
   delx: number,
   dely: number,
 ) => {

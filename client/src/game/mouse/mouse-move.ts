@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { GameConfig } from '../models/game-config';
-import { IsometricSprite } from '../models/isometric-sprite';
+import { IsometricStack } from '../models/isometric-sprite';
 import { isoToIndex } from '../utils/iso-to-index';
 
 export interface CoordsUpdate {
@@ -34,7 +34,7 @@ export const isPositionalUpdate = (
 
 export const mouseMoveInteraction = (
   { data }: PIXI.interaction.InteractionEvent,
-  myContainer: IsometricSprite,
+  myContainer: IsometricStack,
   config: GameConfig,
   dragging: boolean,
   draggedx: number,
@@ -57,21 +57,31 @@ export const mouseMoveInteraction = (
     };
   }
 
+  const selected = myContainer.selected
+    ? {
+        x: myContainer.selected.x,
+        y: myContainer.selected.y,
+      }
+    : {
+        x: 0,
+        y: 0,
+      };
+
   return {
     delx: myContainer.position.x,
     dely: myContainer.position.y,
     draggedx: draggedx + myContainer.position.x / 1000,
     draggedy: draggedy + myContainer.position.y / 1000,
-    newContainerPositionX: parentPosition.x - myContainer.sx,
-    newContainerPositionY: parentPosition.y - myContainer.sy,
+    newContainerPositionX: parentPosition.x - selected.x,
+    newContainerPositionY: parentPosition.y - selected.y,
 
     draggedIndicatorText: `dragged: { x: ${draggedx.toFixed(
       2,
     )}, y: ${draggedy.toFixed(2)}}`,
 
     containerIndicatorText: `myContainer = { x: ${(
-      newPosition.x - myContainer.sx
-    ).toFixed(2)}, y: ${(newPosition.y - myContainer.sy).toFixed(2)}}`,
+      newPosition.x - selected.x
+    ).toFixed(2)}, y: ${(newPosition.y - selected.y).toFixed(2)}}`,
 
     containerParentIndicatorText: `myContainer.parent = { x: ${data
       .getLocalPosition(myContainer.parent)

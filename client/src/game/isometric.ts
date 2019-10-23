@@ -17,7 +17,7 @@ import {
 } from './indicators';
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
-import { IsometricSprite } from './models/isometric-sprite';
+import { IsometricStack } from './models/isometric-sprite';
 import { mouseDownInteraction } from './mouse/mouse-down';
 import {
   isCoordsUpdate,
@@ -60,7 +60,8 @@ export const isoMetricGame = (
 
   let background: PIXI.Container;
 
-  let myContainer: IsometricSprite;
+  let myContainer: IsometricStack;
+  let texture: PIXI.RenderTexture;
 
   const orientationIndicator = orientationIndicatorFactory(height);
   const dragIndicator = dragIndicatorFactory(height);
@@ -118,7 +119,7 @@ export const isoMetricGame = (
     }
 
     // render the tilemap to a render texture
-    const texture = PIXI.RenderTexture.create({
+    texture = PIXI.RenderTexture.create({
       width: config.offsetX * 2,
       height:
         (config.offsetY + (config.tileWidth * config.scale) / config.ai) * 2,
@@ -126,8 +127,14 @@ export const isoMetricGame = (
 
     renderer.render(background, texture);
 
+    let oldSelected;
+    if (myContainer && myContainer.selected) {
+      oldSelected = myContainer.selected;
+    }
+
     // create a single background sprite with the texture
-    myContainer = new PIXI.Sprite(texture) as IsometricSprite;
+    myContainer = new PIXI.Sprite(texture) as IsometricStack;
+    myContainer.selected = oldSelected || undefined;
 
     stage.addChild(myContainer);
     myContainer.x = -400;
@@ -135,7 +142,7 @@ export const isoMetricGame = (
 
     myContainer.interactive = true;
 
-    bindMouseEvents(texture);
+    bindMouseEvents();
     bindKeyboardEvents();
   };
 
@@ -180,49 +187,47 @@ export const isoMetricGame = (
     gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
     gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
 
-    let c = '009900';
-    if (j < -7) {
-      c = '990000';
-    }
-    if (i < -7) {
-      c = '990000';
-    }
-    if (j > 7) {
-      c = '990000';
-    }
-    if (i > 7) {
-      c = '990000';
-    }
+    setGraphicTileColor([i, j], '0x009900');
 
-    if (i === -5) {
-      c = '000099';
+    if (myContainer && myContainer.selected) {
+      // retain selected tile somehow
     }
-    setGraphicTileColor([i, j], '0x' + c);
   };
 
-  const bindMouseEvents = (texture: PIXI.RenderTexture) => {
+  const unSelectTile = (tile: { x: number; y: number; z: number }) => {
+    setGraphicTileColor(isoToIndex(tile.x, tile.y, config), '0x009900');
+    renderer.render(background, texture);
+  };
+
+  const selectTile = (tile: { x: number; y: number; z: number }) => {
+    setGraphicTileColor(isoToIndex(tile.x, tile.y, config), '0xFF0000');
+    renderer.render(background, texture);
+  };
+
+  const bindMouseEvents = () => {
     const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
+      if (myContainer.selected) {
+        unSelectTile(myContainer.selected);
+      }
       const handledEvent = mouseDownInteraction(event, myContainer);
 
       ({ dragging, draggedx, draggedy, delx, dely, velx, vely } = handledEvent);
       draggedIndicator.text = handledEvent.dragIndicatorText;
-      myContainer.sx = handledEvent.newContainerSelectedX;
-      myContainer.sy = handledEvent.newContainerSelectedY;
+
+      myContainer.selected = handledEvent.selected;
     };
 
     const mouseUpHandler = () => {
       const handledEvent = mouseUpInteraction(
         draggedx,
         draggedy,
-        () => {
-          setGraphicTileColor(
-            isoToIndex(myContainer.sx, myContainer.sy, config),
-            '0xFF0000',
-          );
-          renderer.render(background, texture);
-        },
+        () =>
+          selectTile(myContainer.selected as {
+            x: number;
+            y: number;
+            z: number;
+          }),
         myContainer,
-        config,
         delx,
         dely,
       );
