@@ -18,11 +18,17 @@ import {
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricSprite } from './models/isometric-sprite';
+import { mouseDownInteraction } from './mouse/mouse-down';
+import {
+  isCoordsUpdate,
+  isPositionalUpdate,
+  mouseMoveInteraction,
+} from './mouse/mouse-move';
+import { mouseUpInteraction } from './mouse/mouse-up';
 import { initTile } from './tiles/init-tile';
 import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
 import { indexToIso } from './utils/index-to-iso';
-import { isoToIndex } from './utils/iso-to-index';
 import { KeyboardItem } from './utils/keyboard';
 
 export const isoMetricGame = (
@@ -128,110 +134,8 @@ export const isoMetricGame = (
 
     myContainer.interactive = true;
 
-    const mouseDownInteraction = ({
-      data,
-    }: PIXI.interaction.InteractionEvent) => {
-      dragging = true;
-      dragIndicator.text = 'yay';
-      myContainer.sx =
-        data.getLocalPosition(myContainer).x * myContainer.scale.x;
-      myContainer.sy =
-        data.getLocalPosition(myContainer).y * myContainer.scale.y;
-      delx = dely = 0;
-      velx = vely = 0;
-      draggedx = 0;
-      draggedy = 0;
-    };
-
-    const mouseUpInteraction = () => {
-      dragging = false;
-      dragIndicator.text = 'not dragging';
-
-      draggedIndicator.text = '';
-
-      if (Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1) {
-        setGraphicTileColor(
-          isoToIndex(myContainer.sx, myContainer.sy, config),
-          '0xFF0000',
-        );
-      } else {
-        velx = Math.floor(myContainer.position.x - delx);
-        vely = Math.floor(myContainer.position.y - dely);
-        delx = dely = 0;
-      }
-    };
-
-    const mouseMoveInteraction = ({
-      data,
-    }: PIXI.interaction.InteractionEvent) => {
-      const newPosition = data.getLocalPosition(myContainer);
-      const c = isoToIndex(newPosition.x, newPosition.y, config);
-
-      if (dragging) {
-        const parentPosition = data.getLocalPosition(myContainer.parent);
-
-        draggedIndicator.text = `dragged: { x: ${draggedx.toFixed(
-          2,
-        )}, y: ${draggedy.toFixed(2)}}`;
-
-        myContainerIndicator.text = `myContainer = { x: ${(
-          newPosition.x - myContainer.sx
-        ).toFixed(2)}, y: ${(newPosition.y - myContainer.sy).toFixed(2)}}`;
-
-        myContainerParentIndicator.text = `myContainer.parent = { x: ${data
-          .getLocalPosition(myContainer.parent)
-          .x.toFixed(2)}, y: ${data
-          .getLocalPosition(myContainer.parent)
-          .y.toFixed(2)} }`;
-
-        draggedx += myContainer.position.x / 1000;
-        draggedy += myContainer.position.y / 1000;
-
-        delx = myContainer.position.x;
-        dely = myContainer.position.y;
-
-        myContainer.position.x = parentPosition.x - myContainer.sx;
-        myContainer.position.y = parentPosition.y - myContainer.sy;
-      } else if (!isNaN(newPosition.x) && !isNaN(newPosition.y)) {
-        cartesianIndicator.text = `${newPosition.x.toFixed(
-          2,
-        )}, ${newPosition.y.toFixed(2)}`;
-        tileIndicator.text = c.toString();
-      }
-    };
-
-    myContainer.addListener('mousedown', mouseDownInteraction);
-    myContainer.addListener('touchstart', mouseDownInteraction);
-
-    myContainer.addListener('mouseup', mouseUpInteraction);
-    myContainer.addListener('touchend', mouseUpInteraction);
-
-    myContainer.addListener('mousemove', mouseMoveInteraction);
-    myContainer.addListener('touchmove', mouseMoveInteraction);
-
-    keyboardListeners = bindKeyboardListeners(
-      upArrowIndicator,
-      downArrowIndicator,
-      rightArrowIndicator,
-      leftArrowIndicator,
-      ({ dvelx, dvely, hardSetX, hardSetY }) => {
-        if (hardSetX !== undefined) {
-          velx = hardSetX;
-        }
-
-        if (dvelx) {
-          velx += dvelx;
-        }
-
-        if (hardSetY !== undefined) {
-          vely = hardSetY;
-        }
-
-        if (dvely) {
-          vely += dvely;
-        }
-      },
-    );
+    bindMouseEvents();
+    bindKeyboardEvents();
   };
 
   const tearDownScene = () => {
@@ -293,6 +197,97 @@ export const isoMetricGame = (
       c = '000099';
     }
     setGraphicTileColor([i, j], '0x' + c);
+  };
+
+  const bindMouseEvents = () => {
+    const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
+      const handledEvent = mouseDownInteraction(event, myContainer);
+
+      ({ dragging, draggedx, draggedy, delx, dely, velx, vely } = handledEvent);
+      draggedIndicator.text = handledEvent.dragIndicatorText;
+      myContainer.sx = handledEvent.newContainerScaleX;
+      myContainer.sy = handledEvent.newContainerScaleY;
+    };
+
+    const mouseUpHandler = () => {
+      const handledEvent = mouseUpInteraction(
+        draggedx,
+        draggedy,
+        setGraphicTileColor,
+        myContainer,
+        config,
+        delx,
+        dely,
+      );
+      dragIndicator.text = handledEvent.dragIndicatorText;
+      draggedIndicator.text = handledEvent.draggedIndicatorText;
+      dragging = false;
+
+      if (!handledEvent.dragged) {
+        return;
+      }
+
+      ({ velx, vely, delx, dely } = handledEvent.dragged);
+    };
+
+    const mouseMoveHandler = (event: PIXI.interaction.InteractionEvent) => {
+      const handledEvent = mouseMoveInteraction(
+        event,
+        myContainer,
+        config,
+        dragging,
+        draggedx,
+        draggedy,
+      );
+
+      if (isPositionalUpdate(handledEvent)) {
+        ({ delx, dely, draggedx, draggedy } = handledEvent);
+        myContainer.position.x = handledEvent.newContainerPositionX;
+        myContainer.position.y = handledEvent.newContainerPositionY;
+        draggedIndicator.text = handledEvent.draggedIndicatorText;
+        myContainerIndicator.text = handledEvent.containerIndicatorText;
+        myContainerParentIndicator.text =
+          handledEvent.containerParentIndicatorText;
+      } else if (isCoordsUpdate(handledEvent)) {
+        cartesianIndicator.text = handledEvent.cartesianIndicatorText;
+        tileIndicator.text = handledEvent.tileIndicatorText;
+      }
+    };
+
+    myContainer.addListener('mousedown', event => mouseDownHandler(event));
+    myContainer.addListener('touchstart', event => mouseDownHandler(event));
+
+    myContainer.addListener('mouseup', mouseUpHandler);
+    myContainer.addListener('touchend', mouseUpHandler);
+
+    myContainer.addListener('mousemove', event => mouseMoveHandler(event));
+    myContainer.addListener('touchmove', event => mouseMoveHandler(event));
+  };
+
+  const bindKeyboardEvents = () => {
+    keyboardListeners = bindKeyboardListeners(
+      upArrowIndicator,
+      downArrowIndicator,
+      rightArrowIndicator,
+      leftArrowIndicator,
+      ({ dvelx, dvely, hardSetX, hardSetY }) => {
+        if (hardSetX !== undefined) {
+          velx = hardSetX;
+        }
+
+        if (dvelx) {
+          velx += dvelx;
+        }
+
+        if (hardSetY !== undefined) {
+          vely = hardSetY;
+        }
+
+        if (dvely) {
+          vely += dvely;
+        }
+      },
+    );
   };
 
   initScene();
