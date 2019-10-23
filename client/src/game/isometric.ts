@@ -154,7 +154,6 @@ export const isoMetricGame = (
           isoToIndex(myContainer.sx, myContainer.sy, config),
           '0xFF0000',
         );
-        renderer.render(background, texture);
       } else {
         velx = Math.floor(myContainer.position.x - delx);
         vely = Math.floor(myContainer.position.y - dely);
