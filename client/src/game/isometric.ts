@@ -29,6 +29,7 @@ import { initTile } from './tiles/init-tile';
 import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
 import { indexToIso } from './utils/index-to-iso';
+import { isoToIndex } from './utils/iso-to-index';
 import { KeyboardItem } from './utils/keyboard';
 
 export const isoMetricGame = (
@@ -134,7 +135,7 @@ export const isoMetricGame = (
 
     myContainer.interactive = true;
 
-    bindMouseEvents();
+    bindMouseEvents(texture);
     bindKeyboardEvents();
   };
 
@@ -199,21 +200,27 @@ export const isoMetricGame = (
     setGraphicTileColor([i, j], '0x' + c);
   };
 
-  const bindMouseEvents = () => {
+  const bindMouseEvents = (texture: PIXI.RenderTexture) => {
     const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
       const handledEvent = mouseDownInteraction(event, myContainer);
 
       ({ dragging, draggedx, draggedy, delx, dely, velx, vely } = handledEvent);
       draggedIndicator.text = handledEvent.dragIndicatorText;
-      myContainer.sx = handledEvent.newContainerScaleX;
-      myContainer.sy = handledEvent.newContainerScaleY;
+      myContainer.sx = handledEvent.newContainerSelectedX;
+      myContainer.sy = handledEvent.newContainerSelectedY;
     };
 
     const mouseUpHandler = () => {
       const handledEvent = mouseUpInteraction(
         draggedx,
         draggedy,
-        setGraphicTileColor,
+        () => {
+          setGraphicTileColor(
+            isoToIndex(myContainer.sx, myContainer.sy, config),
+            '0xFF0000',
+          );
+          renderer.render(background, texture);
+        },
         myContainer,
         config,
         delx,

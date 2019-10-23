@@ -1,11 +1,10 @@
 import { GameConfig } from '../models/game-config';
 import { IsometricSprite } from '../models/isometric-sprite';
-import { isoToIndex } from '../utils/iso-to-index';
 
 export const mouseUpInteraction = (
   draggedx: number,
   draggedy: number,
-  setGraphicTileColor: (ij: any[] | number[], color: string) => void,
+  callback: () => void,
   myContainer: IsometricSprite,
   config: GameConfig,
   delx: number,
@@ -13,13 +12,10 @@ export const mouseUpInteraction = (
 ) => {
   // if true, this will trigger a click rather than a drag
   const dragBreakpointCondition =
-    Math.abs(draggedx) < 1 && Math.abs(draggedy) < 1;
+    Math.abs(draggedx) > 1 && Math.abs(draggedy) > 1;
 
-  if (dragBreakpointCondition) {
-    setGraphicTileColor(
-      isoToIndex(myContainer.sx, myContainer.sy, config),
-      '0xFF0000',
-    );
+  if (!dragBreakpointCondition) {
+    callback();
   }
 
   return {

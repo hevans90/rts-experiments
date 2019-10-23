@@ -13,8 +13,8 @@ export const mouseDownInteraction = (
   dely: 0,
   velx: 0,
   vely: 0,
-  newContainerScaleX:
+  newContainerSelectedX:
     data.getLocalPosition(myContainer).x * myContainer.scale.x,
-  newContainerScaleY:
+  newContainerSelectedY:
     data.getLocalPosition(myContainer).y * myContainer.scale.y,
 });
