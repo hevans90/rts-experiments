@@ -18,6 +18,7 @@ import {
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricSprite } from './models/isometric-sprite';
+import { initTile } from './tiles/init-tile';
 import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
 import { indexToIso } from './utils/index-to-iso';
@@ -91,7 +92,7 @@ export const isoMetricGame = (
     background = new PIXI.Container();
     for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
       for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
-        background.addChild(initTile(i, j));
+        background.addChild(initTile(i, j, config));
         setTile(i, j);
       }
     }
@@ -261,24 +262,6 @@ export const isoMetricGame = (
     gr.lineTo(gr.c4[0], gr.c4[1]);
 
     gr.endFill();
-  };
-
-  const initTile = (i: number, j: number) => {
-    const gr = new PIXI.Graphics() as IsometricGraphic;
-
-    gr.c1 = indexToIso(i + 1 - config.tileGap, j + config.tileGap, config);
-    gr.c2 = indexToIso(i + 1 - config.tileGap, j + 1 - config.tileGap, config);
-    gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
-    gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
-
-    gr.hitArea = new PIXI.Polygon([
-      new PIXI.Point(gr.c1[0], gr.c1[1]),
-      new PIXI.Point(gr.c2[0], gr.c2[1]),
-      new PIXI.Point(gr.c3[0], gr.c3[1]),
-      new PIXI.Point(gr.c4[0], gr.c4[1]),
-    ]);
-
-    return gr;
   };
 
   const setTile = (i: number, j: number) => {
