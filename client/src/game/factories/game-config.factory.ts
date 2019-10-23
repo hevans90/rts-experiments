@@ -7,15 +7,19 @@ export const gameConfigFactory = (
    * logic to be run when the scene is forcably re-rendered (zooming for example)
    */
   reRenderCallback: () => void,
+
+  options: {
+    mapRadius: number;
+    tileWidth: number;
+    tileGap: number;
+  } = { mapRadius: 18, tileWidth: 16, tileGap: 0.02 },
 ): GameConfig => ({
   canvasHeight,
   canvasWidth,
   scale: 2,
   ai: 2,
   rotation: 1,
-  mapRadius: 18,
-  tileWidth: 16,
-  tileGap: 0.02,
+  ...options,
 
   increaseScale() {
     if (this.scale === 3) {
