@@ -61,6 +61,7 @@ export const isoMetricGame = (
   let background: PIXI.Container;
 
   let myContainer: IsometricStack;
+  let oldSelected: { x: number; y: number; z: number };
   let texture: PIXI.RenderTexture;
 
   const orientationIndicator = orientationIndicatorFactory(height);
@@ -127,7 +128,6 @@ export const isoMetricGame = (
 
     renderer.render(background, texture);
 
-    let oldSelected;
     if (myContainer && myContainer.selected) {
       oldSelected = myContainer.selected;
     }
@@ -207,7 +207,7 @@ export const isoMetricGame = (
   const bindMouseEvents = () => {
     const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
       if (myContainer.selected) {
-        unSelectTile(myContainer.selected);
+        oldSelected = myContainer.selected;
       }
       const handledEvent = mouseDownInteraction(event, myContainer);
 
@@ -221,12 +221,16 @@ export const isoMetricGame = (
       const handledEvent = mouseUpInteraction(
         draggedx,
         draggedy,
-        () =>
+        () => {
+          if (oldSelected) {
+            unSelectTile(oldSelected);
+          }
           selectTile(myContainer.selected as {
             x: number;
             y: number;
             z: number;
-          }),
+          });
+        },
         myContainer,
         delx,
         dely,
@@ -235,11 +239,9 @@ export const isoMetricGame = (
       draggedIndicator.text = handledEvent.draggedIndicatorText;
       dragging = false;
 
-      if (!handledEvent.dragged) {
-        return;
+      if (handledEvent.dragged) {
+        ({ velx, vely, delx, dely } = handledEvent.dragged);
       }
-
-      ({ velx, vely, delx, dely } = handledEvent.dragged);
     };
 
     const mouseMoveHandler = (event: PIXI.interaction.InteractionEvent) => {
