@@ -195,9 +195,10 @@ export const isoMetricGame = (
     gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
 
     setGraphicTileColor([i, j], '0x009900');
-
     if (myContainer && myContainer.selected) {
-      // retain selected tile somehow
+      if (myContainer.selected.i === i && myContainer.selected.j === j) {
+        setGraphicTileColor([i, j], '0xFF0000');
+      }
     }
   };
 
