@@ -10,14 +10,16 @@ import {
   mapVelocityIndicator,
   myContainerIndicator,
   myContainerParentIndicator,
+  oldSelectedIndicator,
   orientationIndicatorFactory,
   rightArrowIndicatorFactory,
+  selectedIndicator,
   tileIndicator,
   upArrowIndicatorFactory,
 } from './indicators';
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
-import { IsometricStack } from './models/isometric-sprite';
+import { IsometricStack, Tile } from './models/isometric-sprite';
 import { mouseDownInteraction } from './mouse/mouse-down';
 import {
   isCoordsUpdate,
@@ -61,7 +63,7 @@ export const isoMetricGame = (
   let background: PIXI.Container;
 
   let myContainer: IsometricStack;
-  let oldSelected: { x: number; y: number; z: number };
+  let oldSelected: Tile;
   let texture: PIXI.RenderTexture;
 
   const orientationIndicator = orientationIndicatorFactory(height);
@@ -84,6 +86,8 @@ export const isoMetricGame = (
     myContainerIndicator,
     myContainerParentIndicator,
     mapVelocityIndicator,
+    selectedIndicator,
+    oldSelectedIndicator,
 
     // bottom left indicators
     draggedIndicator,
@@ -131,11 +135,16 @@ export const isoMetricGame = (
 
     if (myContainer && myContainer.selected) {
       oldSelected = myContainer.selected;
+      oldSelectedIndicator.text = `Prev. Selected: i: ${oldSelected.i}, j: ${oldSelected.j}`;
     }
 
     // create a single background sprite with the texture
     myContainer = new PIXI.Sprite(texture) as IsometricStack;
     myContainer.selected = oldSelected || undefined;
+
+    if (myContainer.selected) {
+      selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
+    }
 
     stage.addChild(myContainer);
     myContainer.x = -400;
@@ -195,13 +204,13 @@ export const isoMetricGame = (
     }
   };
 
-  const unSelectTile = (tile: { x: number; y: number; z: number }) => {
-    setGraphicTileColor(isoToIndex(tile.x, tile.y, config), '0x009900');
+  const unSelectTile = ({ i, j }: Tile) => {
+    setGraphicTileColor([i, j], '0x009900');
     renderer.render(background, texture);
   };
 
-  const selectTile = (tile: { x: number; y: number; z: number }) => {
-    setGraphicTileColor(isoToIndex(tile.x, tile.y, config), '0xFF0000');
+  const selectTile = ({ i, j }: Tile) => {
+    setGraphicTileColor([i, j], '0xFF0000');
     renderer.render(background, texture);
   };
 
@@ -209,13 +218,20 @@ export const isoMetricGame = (
     const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
       if (myContainer.selected) {
         oldSelected = myContainer.selected;
+        oldSelectedIndicator.text = `Prev. Selected: i: ${oldSelected.i}, j: ${oldSelected.j}`;
       }
       const handledEvent = mouseDownInteraction(event, myContainer);
 
       ({ dragging, draggedx, draggedy, delx, dely, velx, vely } = handledEvent);
       draggedIndicator.text = handledEvent.dragIndicatorText;
 
-      myContainer.selected = handledEvent.selected;
+      const [i, j] = isoToIndex(
+        handledEvent.selected.x,
+        handledEvent.selected.y,
+        config,
+      );
+      myContainer.selected = { ...handledEvent.selected, i, j };
+      selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
     };
 
     const mouseUpHandler = () => {
@@ -226,11 +242,7 @@ export const isoMetricGame = (
           if (oldSelected) {
             unSelectTile(oldSelected);
           }
-          selectTile(myContainer.selected as {
-            x: number;
-            y: number;
-            z: number;
-          });
+          selectTile(myContainer.selected as Tile);
         },
         myContainer,
         delx,

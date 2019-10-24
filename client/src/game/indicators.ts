@@ -32,6 +32,12 @@ export const tileIndicator = indicatorFactory(10, 30);
 export const mapVelocityIndicator = indicatorFactory(10, 50, 'Velocity: ');
 export const myContainerIndicator = indicatorFactory(10, 70);
 export const myContainerParentIndicator = indicatorFactory(10, 90);
+export const selectedIndicator = indicatorFactory(10, 120, 'Selected: ');
+export const oldSelectedIndicator = indicatorFactory(
+  10,
+  150,
+  'Prev. Selected: ',
+);
 
 // bottom left indicators
 export const draggedIndicatorFactory = (height: number) =>
