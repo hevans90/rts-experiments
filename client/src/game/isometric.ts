@@ -10,7 +10,6 @@ import {
   mapVelocityIndicator,
   myContainerIndicator,
   myContainerParentIndicator,
-  oldSelectedIndicator,
   orientationIndicatorFactory,
   rightArrowIndicatorFactory,
   selectedIndicator,
@@ -31,7 +30,6 @@ import { initTile } from './tiles/init-tile';
 import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
 import { indexToIso } from './utils/index-to-iso';
-import { isoToIndex } from './utils/iso-to-index';
 import { KeyboardItem } from './utils/keyboard';
 
 export const isoMetricGame = (
@@ -64,6 +62,7 @@ export const isoMetricGame = (
 
   let myContainer: IsometricStack;
   let oldSelected: Tile;
+  let tileClicked: Tile;
   let texture: PIXI.RenderTexture;
 
   const orientationIndicator = orientationIndicatorFactory(height);
@@ -87,7 +86,6 @@ export const isoMetricGame = (
     myContainerParentIndicator,
     mapVelocityIndicator,
     selectedIndicator,
-    oldSelectedIndicator,
 
     // bottom left indicators
     draggedIndicator,
@@ -135,7 +133,6 @@ export const isoMetricGame = (
 
     if (myContainer && myContainer.selected) {
       oldSelected = myContainer.selected;
-      oldSelectedIndicator.text = `Prev. Selected: i: ${oldSelected.i}, j: ${oldSelected.j}`;
     }
 
     // create a single background sprite with the texture
@@ -216,22 +213,12 @@ export const isoMetricGame = (
 
   const bindMouseEvents = () => {
     const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
-      if (myContainer.selected) {
-        oldSelected = myContainer.selected;
-        oldSelectedIndicator.text = `Prev. Selected: i: ${oldSelected.i}, j: ${oldSelected.j}`;
-      }
-      const handledEvent = mouseDownInteraction(event, myContainer);
+      const handledEvent = mouseDownInteraction(event, myContainer, config);
 
       ({ dragging, draggedx, draggedy, delx, dely, velx, vely } = handledEvent);
       draggedIndicator.text = handledEvent.dragIndicatorText;
 
-      const [i, j] = isoToIndex(
-        handledEvent.selected.x,
-        handledEvent.selected.y,
-        config,
-      );
-      myContainer.selected = { ...handledEvent.selected, i, j };
-      selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
+      tileClicked = handledEvent.tileClicked;
     };
 
     const mouseUpHandler = () => {
@@ -239,10 +226,12 @@ export const isoMetricGame = (
         draggedx,
         draggedy,
         () => {
-          if (oldSelected) {
-            unSelectTile(oldSelected);
+          if (myContainer.selected) {
+            unSelectTile(myContainer.selected);
           }
-          selectTile(myContainer.selected as Tile);
+          selectTile(tileClicked);
+          myContainer.selected = tileClicked;
+          selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
         },
         myContainer,
         delx,
@@ -265,6 +254,7 @@ export const isoMetricGame = (
         dragging,
         draggedx,
         draggedy,
+        tileClicked,
       );
 
       if (isPositionalUpdate(handledEvent)) {

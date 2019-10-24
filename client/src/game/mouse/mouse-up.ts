@@ -10,7 +10,7 @@ export const mouseUpInteraction = (
 ) => {
   // if true, this will trigger a click rather than a drag
   const dragBreakpointCondition =
-    Math.abs(draggedx) > 1 && Math.abs(draggedy) > 1;
+    Math.abs(draggedx) > 1 || Math.abs(draggedy) > 1;
 
   if (!dragBreakpointCondition) {
     callback();

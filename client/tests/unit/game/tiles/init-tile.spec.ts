@@ -5,7 +5,7 @@ import { initTile } from '@/game/tiles/init-tile';
 import * as PIXI from 'pixi.js';
 
 describe('initTile', () => {
-  const config: GameConfig = gameConfigFactory(100, 100, () => {}, {
+  const config: GameConfig = gameConfigFactory(100, 100, () => undefined, {
     mapRadius: 5,
     tileWidth: 1,
     tileGap: 0,

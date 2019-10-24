@@ -1,21 +1,31 @@
 import * as PIXI from 'pixi.js';
+import { GameConfig } from '../models/game-config';
 import { IsometricStack } from '../models/isometric-sprite';
+import { isoToIndex } from '../utils/iso-to-index';
 
 export const mouseDownInteraction = (
   { data }: PIXI.interaction.InteractionEvent,
   myContainer: IsometricStack,
-) => ({
-  dragIndicatorText: 'yay',
-  dragging: true,
-  draggedx: 0,
-  draggedy: 0,
-  delx: 0,
-  dely: 0,
-  velx: 0,
-  vely: 0,
-  selected: {
-    x: data.getLocalPosition(myContainer).x * myContainer.scale.x,
-    y: data.getLocalPosition(myContainer).y * myContainer.scale.y,
-    z: 0,
-  },
-});
+  config: GameConfig,
+) => {
+  const { x, y } = data.getLocalPosition(myContainer);
+  const [i, j] = isoToIndex(x, y, config);
+
+  return {
+    dragIndicatorText: 'yay',
+    dragging: true,
+    draggedx: 0,
+    draggedy: 0,
+    delx: 0,
+    dely: 0,
+    velx: 0,
+    vely: 0,
+    tileClicked: {
+      i,
+      j,
+      x: x * myContainer.scale.x,
+      y: y * myContainer.scale.y,
+      z: 0,
+    },
+  };
+};
