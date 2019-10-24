@@ -97,6 +97,20 @@ export const isoMetricGame = (
     rightArrowIndicator,
   );
 
+  if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
+    stage.addChild(
+      ...zoomButtonsFactory(
+        {
+          'zoom-in': assetCollection['zoom-in'],
+          'zoom-out': assetCollection['zoom-out'],
+        },
+        width,
+        height,
+        config,
+      ),
+    );
+  }
+
   const initScene = () => {
     background = new PIXI.Container();
     for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
@@ -104,19 +118,6 @@ export const isoMetricGame = (
         background.addChild(initTile(i, j, config));
         setTile(i, j);
       }
-    }
-    if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
-      stage.addChild(
-        ...zoomButtonsFactory(
-          {
-            'zoom-in': assetCollection['zoom-in'],
-            'zoom-out': assetCollection['zoom-out'],
-          },
-          width,
-          height,
-          config,
-        ),
-      );
     }
 
     // render the tilemap to a render texture
