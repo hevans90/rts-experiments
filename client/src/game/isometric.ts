@@ -208,6 +208,7 @@ export const isoMetricGame = (
   };
 
   const selectTile = ({ i, j }: Tile) => {
+    myContainer.selected = tileClicked;
     setGraphicTileColor([i, j], '0xFF0000');
     renderer.render(background, texture);
   };
@@ -231,8 +232,9 @@ export const isoMetricGame = (
             unSelectTile(myContainer.selected);
           }
           selectTile(tileClicked);
-          myContainer.selected = tileClicked;
-          selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
+          selectedIndicator.text = `Selected: i: ${
+            (myContainer.selected as Tile).i
+          }, j: ${(myContainer.selected as Tile).j}`;
         },
         myContainer,
         delx,
