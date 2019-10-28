@@ -209,7 +209,7 @@ export const isoMetricGame = ({
           rotation = startRotation + draggedx / 100;
           ai = startAi + draggedy / 100;
 
-          changeScene();          
+          changeScene();
           renderer.render(background, texture);
         } else {
           delx = myContainer.position.x;
