@@ -20,3 +20,18 @@ export const isoToIndex = (
   j = Math.floor(j);
   return [i, j];
 };
+
+export const indexToIso = (
+  i: number,
+  j: number,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+  rotation: number,
+  ai: number,
+  tileWidth: number,
+) => {
+  const x = offsetX + (i - j * rotation) * scale * tileWidth;
+  const y = offsetY + ((j + i * rotation) * scale * tileWidth) / ai;
+  return [x, y];
+};
