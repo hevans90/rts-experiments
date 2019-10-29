@@ -17,7 +17,6 @@ import {
   upArrowIndicatorFactory,
 } from './indicators';
 import { AssetCollection } from './models/assets';
-import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricStack } from './models/isometric-stack';
 import { Tile } from './models/tile';
 import { mouseDownInteraction } from './mouse/mouse-down';
@@ -30,6 +29,7 @@ import { mouseUpInteraction } from './mouse/mouse-up';
 import { initTile } from './tiles/init-tile';
 import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
+import { getTile } from './utils/get-tile';
 import { indexToIso } from './utils/index-to-iso';
 import { KeyboardItem } from './utils/keyboard';
 
@@ -161,14 +161,8 @@ export const isoMetricGame = (
     keyboardListeners.forEach(item => item.unsubscribe());
   };
 
-  const setGraphicTileColor = (ij: any[] | number[], color: string) => {
-    const i = ij[0];
-    const j = ij[1];
-    const num =
-      (i + config.mapRadius) * (2 * config.mapRadius + 1) +
-      j +
-      config.mapRadius;
-    const gr = background.getChildAt(num) as IsometricGraphic;
+  const setGraphicTileColor = (i: number, j: number, color: string) => {
+    const gr = getTile(i, j, background, config);
 
     gr.clear();
 
@@ -184,33 +178,29 @@ export const isoMetricGame = (
   };
 
   const setTile = (i: number, j: number) => {
-    const num =
-      (i + config.mapRadius) * (2 * config.mapRadius + 1) +
-      j +
-      config.mapRadius;
-    const gr = background.getChildAt(num) as IsometricGraphic;
+    const gr = getTile(i, j, background, config);
 
     gr.c1 = indexToIso(i + 1 - config.tileGap, j + config.tileGap, config);
     gr.c2 = indexToIso(i + 1 - config.tileGap, j + 1 - config.tileGap, config);
     gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
     gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
 
-    setGraphicTileColor([i, j], '0x009900');
+    setGraphicTileColor(i, j, '0x009900');
     if (myContainer && myContainer.selected) {
       if (myContainer.selected.i === i && myContainer.selected.j === j) {
-        setGraphicTileColor([i, j], '0xFF0000');
+        setGraphicTileColor(i, j, '0xFF0000');
       }
     }
   };
 
   const unSelectTile = ({ i, j }: Tile) => {
-    setGraphicTileColor([i, j], '0x009900');
+    setGraphicTileColor(i, j, '0x009900');
     renderer.render(background, texture);
   };
 
   const selectTile = ({ i, j }: Tile) => {
     myContainer.selected = tileClicked;
-    setGraphicTileColor([i, j], '0xFF0000');
+    setGraphicTileColor(i, j, '0xFF0000');
     renderer.render(background, texture);
   };
 
