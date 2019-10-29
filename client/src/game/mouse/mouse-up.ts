@@ -1,4 +1,4 @@
-import { IsometricStack } from '../models/isometric-sprite';
+import { IsometricStack } from '../models/isometric-stack';
 
 export const mouseUpInteraction = (
   draggedx: number,

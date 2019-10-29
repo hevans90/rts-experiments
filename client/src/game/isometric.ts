@@ -18,7 +18,8 @@ import {
 } from './indicators';
 import { AssetCollection } from './models/assets';
 import { IsometricGraphic } from './models/isometric-graphic';
-import { IsometricStack, Tile } from './models/isometric-sprite';
+import { IsometricStack } from './models/isometric-stack';
+import { Tile } from './models/tile';
 import { mouseDownInteraction } from './mouse/mouse-down';
 import {
   isCoordsUpdate,

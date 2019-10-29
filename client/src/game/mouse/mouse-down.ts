@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { GameConfig } from '../models/game-config';
-import { IsometricStack } from '../models/isometric-sprite';
+import { IsometricStack } from '../models/isometric-stack';
 import { isoToIndex } from '../utils/iso-to-index';
 
 export const mouseDownInteraction = (

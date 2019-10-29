@@ -1,13 +1,5 @@
 import * as PIXI from 'pixi.js';
-
-export interface Tile {
-  i: number;
-  j: number;
-  z: number;
-
-  x: number;
-  y: number;
-}
+import { Tile } from './tile';
 
 export type IsometricStack = PIXI.Sprite & {
   sx: number;

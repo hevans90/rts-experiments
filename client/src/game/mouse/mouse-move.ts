@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { GameConfig } from '../models/game-config';
-import { IsometricStack, Tile } from '../models/isometric-sprite';
+import { IsometricStack } from '../models/isometric-stack';
+import { Tile } from '../models/tile';
 import { isoToIndex } from '../utils/iso-to-index';
 
 export interface CoordsUpdate {
