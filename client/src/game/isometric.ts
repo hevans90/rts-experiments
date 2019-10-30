@@ -17,6 +17,7 @@ import {
   upArrowIndicatorFactory,
 } from './indicators';
 import { AssetCollection } from './models/assets';
+import { IsometricLayer } from './models/isometric-layer';
 import { IsometricStack } from './models/isometric-stack';
 import { Tile } from './models/tile';
 import { mouseDownInteraction } from './mouse/mouse-down';
@@ -59,12 +60,11 @@ export const isoMetricGame = (
 
   let count2 = 0;
 
-  let background: PIXI.Container;
+  let layers: IsometricLayer[];
 
   let myContainer: IsometricStack;
   let oldSelected: Tile;
   let tileClicked: Tile;
-  let texture: PIXI.RenderTexture;
 
   const orientationIndicator = orientationIndicatorFactory(height);
   const dragIndicator = dragIndicatorFactory(height);
@@ -115,38 +115,85 @@ export const isoMetricGame = (
   }
 
   const initScene = () => {
-    background = new PIXI.Container();
-    for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
-      for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
-        background.addChild(initTile(i, j, config));
-        setTile(i, j);
-      }
-    }
+    layers = [
+      {
+        container: new PIXI.Container(),
+        texture: undefined as any,
+        sprite: undefined as any,
+      },
+      {
+        container: new PIXI.Container(),
+        texture: undefined as any,
+        sprite: undefined as any,
+      },
+      {
+        container: new PIXI.Container(),
+        texture: undefined as any,
+        sprite: undefined as any,
+      },
+    ];
 
-    // render the tilemap to a render texture
-    texture = PIXI.RenderTexture.create({
-      width: config.offsetX * 2,
-      height:
-        (config.offsetY + (config.tileWidth * config.scale) / config.ai) * 2,
+    layers.forEach(({ container }, index) => {
+      for (let i = -config.mapRadius; i <= config.mapRadius; i++) {
+        for (let j = -config.mapRadius; j <= config.mapRadius; j++) {
+          container.addChild(initTile(i, j, config));
+
+          switch (index) {
+            case 0:
+              setTile(i, j, container);
+              break;
+            case 1:
+              setTile(i, j, container, '0xFFFFFF');
+              break;
+            case 2:
+              setTile(i, j, container, '0x000000');
+              break;
+
+            default:
+              setTile(i, j, container, '0xFFFFFF');
+          }
+        }
+      }
     });
 
-    renderer.render(background, texture);
+    layers.forEach(
+      layer =>
+        // render the tilemap to a render texture
+        (layer.texture = PIXI.RenderTexture.create({
+          width: config.offsetX * 2,
+          height:
+            (config.offsetY + (config.tileWidth * config.scale) / config.ai) *
+            2,
+        })),
+    );
 
-    if (myContainer && myContainer.selected) {
-      oldSelected = myContainer.selected;
-    }
+    layers.forEach(({ container, texture }) =>
+      renderer.render(container, texture),
+    );
 
-    // create a single background sprite with the texture
-    myContainer = new PIXI.Sprite(texture) as IsometricStack;
-    myContainer.selected = oldSelected || undefined;
+    layers.forEach((layer, index) => {
+      if (index === 0) {
+        if (myContainer && myContainer.selected) {
+          oldSelected = myContainer.selected;
+        }
 
-    if (myContainer.selected) {
-      selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
-    }
+        // create a single background sprite with the texture
+        myContainer = new PIXI.Sprite(layers[0].texture) as IsometricStack;
+        myContainer.selected = oldSelected || undefined;
 
-    stage.addChild(myContainer);
-    myContainer.x = -400;
-    myContainer.y = -400;
+        if (myContainer.selected) {
+          selectedIndicator.text = `Selected: i: ${myContainer.selected.i}, j: ${myContainer.selected.j}`;
+        }
+        layer.sprite = myContainer;
+        stage.addChild(myContainer);
+        return;
+      }
+
+      // TODO: remove above
+      layer.sprite = new PIXI.Sprite(layer.texture);
+      layer.sprite.y -= index * config.tileWidth; // vertical separation of tile layers
+      stage.addChild(layer.sprite);
+    });
 
     myContainer.interactive = true;
 
@@ -155,14 +202,22 @@ export const isoMetricGame = (
   };
 
   const tearDownScene = () => {
-    background.destroy({ children: true, texture: true, baseTexture: true });
-    myContainer.destroy({ children: true, texture: true, baseTexture: true });
+    layers.forEach(({ sprite }) =>
+      sprite.destroy({ children: true, texture: true, baseTexture: true }),
+    );
+
+    // myContainer.destroy({ children: true, texture: true, baseTexture: true });
     myContainer.removeAllListeners();
     keyboardListeners.forEach(item => item.unsubscribe());
   };
 
-  const setGraphicTileColor = (i: number, j: number, color: string) => {
-    const gr = getTile(i, j, background, config);
+  const setGraphicTileColor = (
+    i: number,
+    j: number,
+    layer: PIXI.Container,
+    color: string,
+  ) => {
+    const gr = getTile(i, j, layer, config);
 
     gr.clear();
 
@@ -177,31 +232,40 @@ export const isoMetricGame = (
     gr.endFill();
   };
 
-  const setTile = (i: number, j: number) => {
-    const gr = getTile(i, j, background, config);
+  const setTile = (
+    i: number,
+    j: number,
+    layer: PIXI.Container,
+    color = '0x009900',
+  ) => {
+    const gr = getTile(i, j, layer, config);
 
     gr.c1 = indexToIso(i + 1 - config.tileGap, j + config.tileGap, config);
     gr.c2 = indexToIso(i + 1 - config.tileGap, j + 1 - config.tileGap, config);
     gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
     gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
 
-    setGraphicTileColor(i, j, '0x009900');
+    setGraphicTileColor(i, j, layer, color);
     if (myContainer && myContainer.selected) {
       if (myContainer.selected.i === i && myContainer.selected.j === j) {
-        setGraphicTileColor(i, j, '0xFF0000');
+        setGraphicTileColor(i, j, layer, '0xFF0000');
       }
     }
   };
 
-  const unSelectTile = ({ i, j }: Tile) => {
-    setGraphicTileColor(i, j, '0x009900');
-    renderer.render(background, texture);
+  const unSelectTile = ({ i, j }: Tile, layer: PIXI.Container) => {
+    setGraphicTileColor(i, j, layer, '0x009900');
+    layers.forEach(({ container, texture }) =>
+      renderer.render(container, texture),
+    );
   };
 
-  const selectTile = ({ i, j }: Tile) => {
+  const selectTile = ({ i, j }: Tile, layer: PIXI.Container) => {
     myContainer.selected = tileClicked;
-    setGraphicTileColor(i, j, '0xFF0000');
-    renderer.render(background, texture);
+    setGraphicTileColor(i, j, layer, '0xFF0000');
+    layers.forEach(({ container, texture }) =>
+      renderer.render(container, texture),
+    );
   };
 
   const bindMouseEvents = () => {
@@ -220,9 +284,11 @@ export const isoMetricGame = (
         draggedy,
         () => {
           if (myContainer.selected) {
-            unSelectTile(myContainer.selected);
+            // TODO: layer context
+            unSelectTile(myContainer.selected, layers[0].container);
           }
-          selectTile(tileClicked);
+          // TODO: layer context
+          selectTile(tileClicked, layers[0].container);
           selectedIndicator.text = `Selected: i: ${
             (myContainer.selected as Tile).i
           }, j: ${(myContainer.selected as Tile).j}`;

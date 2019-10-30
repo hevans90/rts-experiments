@@ -16,7 +16,7 @@ export const gameConfigFactory = (
 ): GameConfig => ({
   canvasHeight,
   canvasWidth,
-  scale: 2,
+  scale: 1,
   ai: 2,
   rotation: 1,
   ...options,
