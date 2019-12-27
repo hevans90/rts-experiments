@@ -23,6 +23,7 @@ export const gameConfigFactory = (
 
   increaseScale() {
     if (this.scale === 3) {
+      console.warn(`Cannot zoom out more; scale = ${this.scale}`);
       return;
     }
 
@@ -32,6 +33,7 @@ export const gameConfigFactory = (
 
   decreaseScale() {
     if (this.scale === 0.5) {
+      console.warn(`Cannot zoom in more; scale = ${this.scale}`);
       return;
     }
 

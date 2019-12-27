@@ -12,19 +12,20 @@ describe('initTile', () => {
   });
 
   let tile: IsometricGraphic;
+  const { scale } = config;
 
   beforeEach(() => (tile = initTile(0, 1, config)));
 
   it('should set corner coords successfully', () => {
-    expect(tile.c1).toEqual([22, 12]);
-    expect(tile.c2).toEqual([20, 13]);
-    expect(tile.c3).toEqual([18, 12]);
-    expect(tile.c4).toEqual([20, 11]);
+    expect(tile.c1).toEqual([11, 6].map(i => i * scale));
+    expect(tile.c2).toEqual([10, 6.5].map(i => i * scale));
+    expect(tile.c3).toEqual([9, 6].map(i => i * scale));
+    expect(tile.c4).toEqual([10, 5.5].map(i => i * scale));
   });
 
   it('should set hit area correctly', () => {
     expect(tile.hitArea).toEqual(
-      new PIXI.Polygon([22, 12, 20, 13, 18, 12, 20, 11]),
+      new PIXI.Polygon([11, 6, 10, 6.5, 9, 6, 10, 5.5].map(i => i * scale)),
     );
   });
 });

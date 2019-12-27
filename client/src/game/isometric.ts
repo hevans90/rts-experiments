@@ -17,6 +17,7 @@ import {
   upArrowIndicatorFactory,
 } from './indicators';
 import { AssetCollection } from './models/assets';
+import { IsometricGraphic } from './models/isometric-graphic';
 import { IsometricLayer } from './models/isometric-layer';
 import { IsometricStack } from './models/isometric-stack';
 import { Tile } from './models/tile';
@@ -30,7 +31,7 @@ import { mouseUpInteraction } from './mouse/mouse-up';
 import { initTile } from './tiles/init-tile';
 import { performanceStatsFactory } from './ui/performance-stats';
 import { zoomButtonsFactory } from './ui/zoom-buttons';
-import { getTile } from './utils/get-tile';
+import { getTileGraphic } from './utils/get-tile-graphic';
 import { indexToIso } from './utils/index-to-iso';
 import { KeyboardItem } from './utils/keyboard';
 
@@ -212,24 +213,21 @@ export const isoMetricGame = (
   };
 
   const setGraphicTileColor = (
-    i: number,
-    j: number,
+    tileGraphic: IsometricGraphic,
     layer: PIXI.Container,
     color: string,
   ) => {
-    const gr = getTile(i, j, layer, config);
+    tileGraphic.clear();
 
-    gr.clear();
+    tileGraphic.color = color;
+    tileGraphic.beginFill(tileGraphic.color as any);
 
-    gr.color = color;
-    gr.beginFill(gr.color as any);
+    tileGraphic.moveTo(tileGraphic.c1[0], tileGraphic.c1[1]);
+    tileGraphic.lineTo(tileGraphic.c2[0], tileGraphic.c2[1]);
+    tileGraphic.lineTo(tileGraphic.c3[0], tileGraphic.c3[1]);
+    tileGraphic.lineTo(tileGraphic.c4[0], tileGraphic.c4[1]);
 
-    gr.moveTo(gr.c1[0], gr.c1[1]);
-    gr.lineTo(gr.c2[0], gr.c2[1]);
-    gr.lineTo(gr.c3[0], gr.c3[1]);
-    gr.lineTo(gr.c4[0], gr.c4[1]);
-
-    gr.endFill();
+    tileGraphic.endFill();
   };
 
   const setTile = (
@@ -238,34 +236,54 @@ export const isoMetricGame = (
     layer: PIXI.Container,
     color = '0x009900',
   ) => {
-    const gr = getTile(i, j, layer, config);
+    let tileGraphic: IsometricGraphic;
+    const { tileGap } = config;
 
-    gr.c1 = indexToIso(i + 1 - config.tileGap, j + config.tileGap, config);
-    gr.c2 = indexToIso(i + 1 - config.tileGap, j + 1 - config.tileGap, config);
-    gr.c3 = indexToIso(i + config.tileGap, j + 1 - config.tileGap, config);
-    gr.c4 = indexToIso(i + config.tileGap, j + config.tileGap, config);
+    try {
+      tileGraphic = getTileGraphic(i, j, layer, config);
+      tileGraphic.c1 = indexToIso(i + 1 - tileGap, j + tileGap, config);
+      tileGraphic.c2 = indexToIso(i + 1 - tileGap, j + 1 - tileGap, config);
+      tileGraphic.c3 = indexToIso(i + tileGap, j + 1 - tileGap, config);
+      tileGraphic.c4 = indexToIso(i + tileGap, j + tileGap, config);
 
-    setGraphicTileColor(i, j, layer, color);
-    if (myContainer && myContainer.selected) {
-      if (myContainer.selected.i === i && myContainer.selected.j === j) {
-        setGraphicTileColor(i, j, layer, '0xFF0000');
+      setGraphicTileColor(tileGraphic, layer, color);
+      if (myContainer && myContainer.selected) {
+        if (myContainer.selected.i === i && myContainer.selected.j === j) {
+          setGraphicTileColor(tileGraphic, layer, '0xFF0000');
+        }
       }
+    } catch (e) {
+      console.warn(e.message);
     }
   };
 
   const unSelectTile = ({ i, j }: Tile, layer: PIXI.Container) => {
-    setGraphicTileColor(i, j, layer, '0x009900');
-    layers.forEach(({ container, texture }) =>
-      renderer.render(container, texture),
-    );
+    let tileGraphic: IsometricGraphic;
+
+    try {
+      tileGraphic = getTileGraphic(i, j, layer, config);
+      setGraphicTileColor(tileGraphic, layer, '0x009900');
+      layers.forEach(({ container, texture }) =>
+        renderer.render(container, texture),
+      );
+    } catch (error) {
+      console.warn(error.message);
+    }
   };
 
   const selectTile = ({ i, j }: Tile, layer: PIXI.Container) => {
+    let tileGraphic: IsometricGraphic;
     myContainer.selected = tileClicked;
-    setGraphicTileColor(i, j, layer, '0xFF0000');
-    layers.forEach(({ container, texture }) =>
-      renderer.render(container, texture),
-    );
+
+    try {
+      tileGraphic = getTileGraphic(i, j, layer, config);
+      setGraphicTileColor(tileGraphic, layer, '0xFF0000');
+      layers.forEach(({ container, texture }) =>
+        renderer.render(container, texture),
+      );
+    } catch (error) {
+      console.warn(error.message);
+    }
   };
 
   const bindMouseEvents = () => {
