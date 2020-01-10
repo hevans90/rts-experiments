@@ -22,19 +22,23 @@ export default Vue.extend({
     const loadedAssets = await assetLoader();
 
     // Determine the width and height of the renderer wrapper element.
-    const renderCanvas = this.$refs.renderCanvas as HTMLCanvasElement;
-    const width = renderCanvas.offsetWidth;
-    const height = renderCanvas.offsetHeight;
+    const view = this.$refs.renderCanvas as HTMLCanvasElement;
+    const width = view.offsetWidth;
+    const height = view.offsetHeight;
 
     const game = isoMetricGame(
       new PIXI.Application({
         width,
         height,
-        view: renderCanvas,
+        view,
         backgroundColor: 0x36454f,
       }),
       loadedAssets,
     );
+
+    window.onresize = () => {
+      game.resize(view.offsetWidth, view.offsetHeight);
+    };
   },
 });
 </script>

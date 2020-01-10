@@ -39,6 +39,7 @@ export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
   assetCollection: Partial<AssetCollection>,
 ) => {
+  renderer.autoResize = true;
   requestAnimationFrame(animate);
 
   const config = gameConfigFactory(width, height, () => {
@@ -67,14 +68,14 @@ export const isoMetricGame = (
   let oldSelected: Tile;
   let tileClicked: Tile;
 
-  const orientationIndicator = orientationIndicatorFactory(height);
-  const dragIndicator = dragIndicatorFactory(height);
-  const draggedIndicator = draggedIndicatorFactory(height);
-
-  const upArrowIndicator = upArrowIndicatorFactory(height, width);
-  const downArrowIndicator = downArrowIndicatorFactory(height, width);
-  const leftArrowIndicator = leftArrowIndicatorFactory(height, width);
-  const rightArrowIndicator = rightArrowIndicatorFactory(height, width);
+  let zoomButtons: [PIXI.Sprite, PIXI.Sprite];
+  let orientationIndicator: PIXI.Text;
+  let dragIndicator: PIXI.Text;
+  let draggedIndicator: PIXI.Text;
+  let upArrowIndicator: PIXI.Text;
+  let downArrowIndicator: PIXI.Text;
+  let leftArrowIndicator: PIXI.Text;
+  let rightArrowIndicator: PIXI.Text;
 
   let keyboardListeners: KeyboardItem[];
 
@@ -88,32 +89,48 @@ export const isoMetricGame = (
     myContainerParentIndicator,
     mapVelocityIndicator,
     selectedIndicator,
-
-    // bottom left indicators
-    draggedIndicator,
-    dragIndicator,
-    orientationIndicator,
-
-    // bottom right indicators
-    upArrowIndicator,
-    downArrowIndicator,
-    leftArrowIndicator,
-    rightArrowIndicator,
   );
 
-  if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
+  const buildIndicators = (canvasHeight: number, canvasWidth: number) => {
+    orientationIndicator = orientationIndicatorFactory(canvasHeight);
+    dragIndicator = dragIndicatorFactory(canvasHeight);
+    draggedIndicator = draggedIndicatorFactory(canvasHeight);
+    upArrowIndicator = upArrowIndicatorFactory(canvasHeight, canvasWidth);
+    downArrowIndicator = downArrowIndicatorFactory(canvasHeight, canvasWidth);
+    leftArrowIndicator = leftArrowIndicatorFactory(canvasHeight, canvasWidth);
+    rightArrowIndicator = rightArrowIndicatorFactory(canvasHeight, canvasWidth);
+
     stage.addChild(
-      ...zoomButtonsFactory(
+      // bottom left indicators
+      draggedIndicator,
+      dragIndicator,
+      orientationIndicator,
+
+      // bottom right indicators
+      upArrowIndicator,
+      downArrowIndicator,
+      leftArrowIndicator,
+      rightArrowIndicator,
+    );
+  };
+
+  const buildZoomButtons = (canvasHeight: number, canvasWidth: number) => {
+    if (assetCollection['zoom-in'] && assetCollection['zoom-out']) {
+      zoomButtons = zoomButtonsFactory(
         {
           'zoom-in': assetCollection['zoom-in'],
           'zoom-out': assetCollection['zoom-out'],
         },
-        width,
-        height,
+        canvasWidth,
+        canvasHeight,
         config,
-      ),
-    );
-  }
+      );
+      stage.addChild(...zoomButtons);
+    }
+  };
+
+  buildIndicators(height, width);
+  buildZoomButtons(height, width);
 
   const initScene = () => {
     layers = [
@@ -441,4 +458,26 @@ export const isoMetricGame = (
     stats.end();
     requestAnimationFrame(animate);
   }
+
+  const resize = (newWidth: number, newHeight: number) => {
+    renderer.resize(newWidth, newHeight);
+    stage.removeChild(
+      ...zoomButtons,
+      // bottom left indicators
+      draggedIndicator,
+      dragIndicator,
+      orientationIndicator,
+
+      // bottom right indicators
+      upArrowIndicator,
+      downArrowIndicator,
+      leftArrowIndicator,
+      rightArrowIndicator,
+    );
+
+    buildIndicators(newHeight, newWidth);
+    buildZoomButtons(newHeight, newWidth);
+  };
+
+  return { resize };
 };
