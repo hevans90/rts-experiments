@@ -122,16 +122,16 @@ export const isoMetricGame = (
         texture: undefined as any,
         sprite: undefined as any,
       },
-      {
-        container: new PIXI.Container(),
-        texture: undefined as any,
-        sprite: undefined as any,
-      },
-      {
-        container: new PIXI.Container(),
-        texture: undefined as any,
-        sprite: undefined as any,
-      },
+      // {
+      //   container: new PIXI.Container(),
+      //   texture: undefined as any,
+      //   sprite: undefined as any,
+      // },
+      // {
+      //   container: new PIXI.Container(),
+      //   texture: undefined as any,
+      //   sprite: undefined as any,
+      // },
     ];
 
     layers.forEach(({ container }, index) => {
@@ -193,7 +193,7 @@ export const isoMetricGame = (
       // TODO: remove above
       layer.sprite = new PIXI.Sprite(layer.texture);
       layer.sprite.y -= index * config.tileWidth; // vertical separation of tile layers
-      stage.addChild(layer.sprite);
+      myContainer.addChild(layer.sprite);
     });
 
     myContainer.interactive = true;
@@ -203,18 +203,13 @@ export const isoMetricGame = (
   };
 
   const tearDownScene = () => {
-    layers.forEach(({ sprite }) =>
-      sprite.destroy({ children: true, texture: true, baseTexture: true }),
-    );
-
-    // myContainer.destroy({ children: true, texture: true, baseTexture: true });
+    myContainer.destroy({ children: true, texture: true, baseTexture: true });
     myContainer.removeAllListeners();
     keyboardListeners.forEach(item => item.unsubscribe());
   };
 
   const setGraphicTileColor = (
     tileGraphic: IsometricGraphic,
-    layer: PIXI.Container,
     color: string,
   ) => {
     tileGraphic.clear();
@@ -246,10 +241,10 @@ export const isoMetricGame = (
       tileGraphic.c3 = indexToIso(i + tileGap, j + 1 - tileGap, config);
       tileGraphic.c4 = indexToIso(i + tileGap, j + tileGap, config);
 
-      setGraphicTileColor(tileGraphic, layer, color);
+      setGraphicTileColor(tileGraphic, color);
       if (myContainer && myContainer.selected) {
         if (myContainer.selected.i === i && myContainer.selected.j === j) {
-          setGraphicTileColor(tileGraphic, layer, '0xFF0000');
+          setGraphicTileColor(tileGraphic, '0xFF0000');
         }
       }
     } catch (e) {
@@ -262,7 +257,7 @@ export const isoMetricGame = (
 
     try {
       tileGraphic = getTileGraphic(i, j, layer, config);
-      setGraphicTileColor(tileGraphic, layer, '0x009900');
+      setGraphicTileColor(tileGraphic, '0x009900');
       layers.forEach(({ container, texture }) =>
         renderer.render(container, texture),
       );
@@ -277,7 +272,7 @@ export const isoMetricGame = (
 
     try {
       tileGraphic = getTileGraphic(i, j, layer, config);
-      setGraphicTileColor(tileGraphic, layer, '0xFF0000');
+      setGraphicTileColor(tileGraphic, '0xFF0000');
       layers.forEach(({ container, texture }) =>
         renderer.render(container, texture),
       );
