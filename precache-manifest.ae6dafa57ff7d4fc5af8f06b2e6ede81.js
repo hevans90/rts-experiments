@@ -44,8 +44,12 @@ self.__precacheManifest = [
     "url": "/rts-experiments/img/logo.99eaa701.png"
   },
   {
-    "revision": "153433fe0ebdc4d7c5863df1945d7782",
+    "revision": "f2bf5a3cdf60dec3a9aa7d3c693717bc",
     "url": "/rts-experiments/index.html"
+  },
+  {
+    "revision": "26589fc66819ea64ffd44854e922e140",
+    "url": "/rts-experiments/404.html"
   },
   {
     "revision": "b6216d61c03e6ce0c9aea6ca7808f7ca",
