@@ -1,11 +1,11 @@
 self.__precacheManifest = [
   {
-    "revision": "aea3bb526c47042de0e1",
+    "revision": "3db8a2fbf4e2258a057c",
     "url": "/rts-experiments/css/app.499c00c9.css"
   },
   {
-    "revision": "aea3bb526c47042de0e1",
-    "url": "/rts-experiments/js/app.bdf05ae6.js"
+    "revision": "3db8a2fbf4e2258a057c",
+    "url": "/rts-experiments/js/app.64720728.js"
   },
   {
     "revision": "0d6a4c7c90bc3d721929",
@@ -24,12 +24,12 @@ self.__precacheManifest = [
     "url": "/rts-experiments/js/game~isometric.7704ed48.js"
   },
   {
-    "revision": "2d66cf3c68796879b311",
+    "revision": "413b2c6fbfd064408305",
     "url": "/rts-experiments/css/isometric.830cd5f6.css"
   },
   {
-    "revision": "2d66cf3c68796879b311",
-    "url": "/rts-experiments/js/isometric.d4171ad4.js"
+    "revision": "413b2c6fbfd064408305",
+    "url": "/rts-experiments/js/isometric.f0ef44ac.js"
   },
   {
     "revision": "607fc4f63bb24ce8e9cd34dd82d2fdd1",
@@ -44,7 +44,7 @@ self.__precacheManifest = [
     "url": "/rts-experiments/img/logo.99eaa701.png"
   },
   {
-    "revision": "b20a6de5fb9463b724397f1b50d73537",
+    "revision": "7757a6aef85d0ac026031d3dabdf7998",
     "url": "/rts-experiments/index.html"
   },
   {
