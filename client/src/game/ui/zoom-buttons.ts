@@ -7,8 +7,8 @@ export const zoomButtonsFactory = (
     'zoom-out': { texture: zoomOutTexture },
     'zoom-in': { texture: zoomInTexture },
   }: Pick<AssetCollection, 'zoom-in' | 'zoom-out'>,
-  width: number,
-  height: number,
+  canvasWidth: number,
+  canvasHeight: number,
   config: GameConfig,
 ): [PIXI.Sprite, PIXI.Sprite] => {
   const zoomInButtonSprite = new PIXI.Sprite(zoomInTexture);
@@ -22,19 +22,21 @@ export const zoomButtonsFactory = (
   zoomInButtonSprite.anchor.set(0.5);
   zoomOutButtonSprite.anchor.set(0.5);
 
-  zoomInButtonSprite.position.x = width - 275;
-  zoomInButtonSprite.position.y = height - 40;
+  zoomInButtonSprite.width = 45;
+  zoomInButtonSprite.height = 45;
+  zoomInButtonSprite.position.x = canvasWidth - 275;
+  zoomInButtonSprite.position.y = canvasHeight - 40;
   zoomInButtonSprite.zIndex = 2;
 
-  zoomOutButtonSprite.position.x = width - 200;
-  zoomOutButtonSprite.position.y = height - 40;
+  zoomOutButtonSprite.width = 45;
+  zoomOutButtonSprite.height = 45;
+  zoomOutButtonSprite.position.x = canvasWidth - 200;
+  zoomOutButtonSprite.position.y = canvasHeight - 40;
   zoomOutButtonSprite.zIndex = 2;
 
-  zoomInButtonSprite.on('click', () => config.increaseScale());
-  zoomInButtonSprite.on('touch', () => config.increaseScale());
+  zoomInButtonSprite.on('pointerdown', () => config.increaseScale());
 
-  zoomOutButtonSprite.on('click', () => config.decreaseScale());
-  zoomOutButtonSprite.on('touch', () => config.decreaseScale());
+  zoomOutButtonSprite.on('pointerdown', () => config.decreaseScale());
 
   return [zoomInButtonSprite, zoomOutButtonSprite];
 };
