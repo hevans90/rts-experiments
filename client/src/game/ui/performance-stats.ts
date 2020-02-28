@@ -9,6 +9,7 @@ export enum PerformanceStat {
 }
 
 export const performanceStatsFactory = () => {
+  // eslint-disable-next-line
   const Stats = require('stats.js');
   const stats = new Stats();
   stats.showPanel(2); // 0: fps, 1: ms, 2: mb, 3+: custom

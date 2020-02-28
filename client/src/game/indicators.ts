@@ -16,7 +16,7 @@ const indicatorPreset: IndicatorPreset = {
 const indicatorFactory = (
   x: number,
   y: number,
-  initialText: string = '',
+  initialText = '',
   z: 1 | 2 | 3 = 2,
 ): PIXI.Text => {
   const indicator = new PIXI.Text(initialText, indicatorPreset);

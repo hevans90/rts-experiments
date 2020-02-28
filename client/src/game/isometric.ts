@@ -39,7 +39,6 @@ export const isoMetricGame = (
   { stage, renderer, view: { width, height } }: PIXI.Application,
   assetCollection: Partial<AssetCollection>,
 ) => {
-  renderer.autoResize = true;
   requestAnimationFrame(animate);
 
   const config = gameConfigFactory(width, height, () => {
