@@ -139,11 +139,11 @@ export const isoMetricGame = (
         texture: undefined as any,
         sprite: undefined as any,
       },
-      // {
-      //   container: new PIXI.Container(),
-      //   texture: undefined as any,
-      //   sprite: undefined as any,
-      // },
+      {
+        container: new PIXI.Container(),
+        texture: undefined as any,
+        sprite: undefined as any,
+      },
       // {
       //   container: new PIXI.Container(),
       //   texture: undefined as any,
@@ -161,14 +161,14 @@ export const isoMetricGame = (
               setTile(i, j, container);
               break;
             case 1:
-              setTile(i, j, container, '0xFFFFFF');
+              setTile(i, j, container, '0xFFFFFF', 0.3);
               break;
             case 2:
               setTile(i, j, container, '0x000000');
               break;
 
             default:
-              setTile(i, j, container, '0xFFFFFF');
+              setTile(i, j, container, '0xFFFFFF', 0.5);
           }
         }
       }
@@ -228,11 +228,12 @@ export const isoMetricGame = (
   const setGraphicTileColor = (
     tileGraphic: IsometricGraphic,
     color: string,
+    alpha = 1,
   ) => {
     tileGraphic.clear();
 
     tileGraphic.color = color;
-    tileGraphic.beginFill(tileGraphic.color as any);
+    tileGraphic.beginFill(tileGraphic.color as any, alpha);
 
     tileGraphic.moveTo(tileGraphic.c1[0], tileGraphic.c1[1]);
     tileGraphic.lineTo(tileGraphic.c2[0], tileGraphic.c2[1]);
@@ -247,6 +248,7 @@ export const isoMetricGame = (
     j: number,
     layer: PIXI.Container,
     color = '0x009900',
+    alpha = 1,
   ) => {
     let tileGraphic: IsometricGraphic;
     const { tileGap } = config;
@@ -258,7 +260,7 @@ export const isoMetricGame = (
       tileGraphic.c3 = indexToIso(i + tileGap, j + 1 - tileGap, config);
       tileGraphic.c4 = indexToIso(i + tileGap, j + tileGap, config);
 
-      setGraphicTileColor(tileGraphic, color);
+      setGraphicTileColor(tileGraphic, color, alpha);
       if (myContainer && myContainer.selected) {
         if (myContainer.selected.i === i && myContainer.selected.j === j) {
           setGraphicTileColor(tileGraphic, '0xFF0000');
