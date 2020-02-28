@@ -66,6 +66,7 @@ export const isoMetricGame = (
   let myContainer: IsometricStack;
   let oldSelected: Tile;
   let tileClicked: Tile;
+  let tileHovered: Tile;
 
   let zoomButtons: [PIXI.Sprite, PIXI.Sprite];
   let orientationIndicator: PIXI.Text;
@@ -299,6 +300,26 @@ export const isoMetricGame = (
     }
   };
 
+  const hoverTile = ({ i, j }: Tile, layer: PIXI.Container) => {
+    let tileGraphic: IsometricGraphic;
+
+    if (myContainer.selected?.i === i && myContainer.selected?.j === j) {
+      console.warn('not hovering already selected tile');
+      return;
+    }
+    myContainer.hovered = tileHovered;
+
+    try {
+      tileGraphic = getTileGraphic(i, j, layer, config);
+      setGraphicTileColor(tileGraphic, '0xFF00FF', 0.7);
+      layers.forEach(({ container, texture }) =>
+        renderer.render(container, texture),
+      );
+    } catch (error) {
+      console.warn(error.message);
+    }
+  };
+
   const bindMouseEvents = () => {
     const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
       const handledEvent = mouseDownInteraction(event, myContainer, config);
@@ -358,7 +379,22 @@ export const isoMetricGame = (
           handledEvent.containerParentIndicatorText;
       } else if (isCoordsUpdate(handledEvent)) {
         cartesianIndicator.text = handledEvent.cartesianIndicatorText;
-        tileIndicator.text = handledEvent.tileIndicatorText;
+
+        if (handledEvent.tileIndicatorText !== tileIndicator.text) {
+          console.log(
+            `prev: ${tileIndicator.text}   new:${handledEvent.tileIndicatorText}`,
+          );
+          tileIndicator.text = handledEvent.tileIndicatorText;
+          if (myContainer.hovered) {
+            // TODO: layer context
+            unSelectTile(myContainer.hovered, layers[0].container);
+          }
+
+          // TODO: layer context
+          hoverTile(handledEvent.tileHovered, layers[0].container);
+
+          tileHovered = handledEvent.tileHovered;
+        }
       }
     };
 

@@ -7,6 +7,7 @@ import { isoToIndex } from '../utils/iso-to-index';
 export interface CoordsUpdate {
   cartesianIndicatorText: string;
   tileIndicatorText: string;
+  tileHovered: Tile;
 }
 
 export interface PositionalUpdate {
@@ -42,20 +43,21 @@ export const mouseMoveInteraction = (
   draggedy: number,
   tileClicked?: Tile,
 ): CoordsUpdate | PositionalUpdate => {
-  const newPosition = data.getLocalPosition(myContainer);
+  const { x, y } = data.getLocalPosition(myContainer);
+  const [i, j] = isoToIndex(x, y, config);
   const parentPosition = data.getLocalPosition(myContainer.parent);
 
   if (!dragging) {
     return {
-      cartesianIndicatorText: `${newPosition.x.toFixed(
-        2,
-      )}, ${newPosition.y.toFixed(2)}`,
-
-      tileIndicatorText: isoToIndex(
-        newPosition.x,
-        newPosition.y,
-        config,
-      ).toString(),
+      cartesianIndicatorText: `${x.toFixed(2)}, ${y.toFixed(2)}`,
+      tileIndicatorText: isoToIndex(x, y, config).toString(),
+      tileHovered: {
+        i,
+        j,
+        x: x * myContainer.scale.x,
+        y: y * myContainer.scale.y,
+        z: 0,
+      },
     };
   } else {
     const tileDragged = tileClicked || {
@@ -75,9 +77,9 @@ export const mouseMoveInteraction = (
         2,
       )}, y: ${draggedy.toFixed(2)}}`,
 
-      containerIndicatorText: `myContainer = { x: ${(
-        newPosition.x - tileDragged.x
-      ).toFixed(2)}, y: ${(newPosition.y - tileDragged.y).toFixed(2)}}`,
+      containerIndicatorText: `myContainer = { x: ${(x - tileDragged.x).toFixed(
+        2,
+      )}, y: ${(y - tileDragged.y).toFixed(2)}}`,
 
       containerParentIndicatorText: `myContainer.parent = { x: ${data
         .getLocalPosition(myContainer.parent)

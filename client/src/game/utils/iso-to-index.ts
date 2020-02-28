@@ -15,5 +15,10 @@ export const isoToIndex = (
 
   i = Math.floor(i);
   j = Math.floor(j);
+
+  if (Number.isNaN(i) || Number.isNaN(j)) {
+    console.warn(`i: ${i}, j: ${j} looking fishy...`);
+  }
+
   return [i, j];
 };
