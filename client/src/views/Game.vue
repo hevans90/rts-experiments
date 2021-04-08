@@ -43,7 +43,7 @@ export default Vue.extend({
         game.stage.addChild(sprite);
       }
 
-      console.log(loadedAssets);
+      // console?.log(loadedAssets);
     } catch (e) {
       console.error(e);
     }

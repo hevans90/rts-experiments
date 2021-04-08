@@ -1,9 +1,10 @@
 import * as PIXI from 'pixi.js';
 import { AssetCollection, AssetKey, assetKeys } from './models/assets';
 
-export const assetPath = (key: AssetKey) => require(`../assets/${key}.png`);
+export const assetPath = (key: AssetKey): string =>
+  require(`../assets/${key}.png`);
 
-export const assetLoader = () =>
+export const assetLoader = (): Promise<Partial<AssetCollection>> =>
   loadAssets(assetKeys.map(key => ({ name: key, url: assetPath(key) })));
 
 const loadProgressHandler = () =>
@@ -21,7 +22,7 @@ const loadProgressHandler = () =>
 
 export const loadAssets = async (
   assetPaths: { name: AssetKey; url: string }[],
-) =>
+): Promise<Partial<AssetCollection>> =>
   new Promise<Partial<AssetCollection>>((res, rej) => {
     PIXI.Loader.shared
       .add(assetPaths)

@@ -21,6 +21,7 @@ export interface GameConfig {
   rotation: number;
 
   /**
+   * Angle of Incline
    * 2 gives you isometric view
    */
   ai: number;

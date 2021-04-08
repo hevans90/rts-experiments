@@ -6,4 +6,6 @@ export type IsometricGraphic = PIXI.Graphics & {
   c3: [number, number];
   c4: [number, number];
   color: string;
+  selected: boolean;
+  hovered: boolean;
 };
