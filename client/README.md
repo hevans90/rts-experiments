@@ -1,41 +1,37 @@
 # client
 
 ## Project setup
+
 ```
-yarn install
+yarn
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
-yarn run serve
+yarn serve
 ```
 
-### Compiles and minifies for production
+### Prod build (minification & other webpack goodness)
+
 ```
-yarn run build
+yarn build
 ```
 
-### Run your tests
-```
-yarn run test
-```
+### Deploy to GH Pages
 
-### Lints and fixes files
 ```
-yarn run lint
-```
-
-### Run your end-to-end tests
-```
-yarn run test:e2e
+yarn deploy
 ```
 
 ### Run your unit tests
+
 ```
-yarn run test:unit
+yarn test:unit
 ```
 
 ### Customize configuration
+
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Jest Snippets
