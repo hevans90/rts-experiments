@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rts-experiments/404.html"
   },
   {
-    "revision": "8ef99d05328ce348498c",
+    "revision": "b681af24679f380d874a",
     "url": "/rts-experiments/css/app.969d22b6.css"
   },
   {
@@ -12,7 +12,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rts-experiments/css/game.6b40ab58.css"
   },
   {
-    "revision": "fde28a1003ea72f0f165",
+    "revision": "92a7edaca2b47eea2b12",
     "url": "/rts-experiments/css/isometric.830cd5f6.css"
   },
   {
@@ -28,12 +28,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rts-experiments/img/logo.99eaa701.png"
   },
   {
-    "revision": "01a1ef7b382ad513db76af3595ab0356",
+    "revision": "07828d7be868705f22aa672f940fd2c8",
     "url": "/rts-experiments/index.html"
   },
   {
-    "revision": "8ef99d05328ce348498c",
-    "url": "/rts-experiments/js/app.e2583e16.js"
+    "revision": "b681af24679f380d874a",
+    "url": "/rts-experiments/js/app.dd4d7e31.js"
   },
   {
     "revision": "3c5ab77f8dd11960b757",
@@ -48,8 +48,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rts-experiments/js/game~isometric.bf3c9201.js"
   },
   {
-    "revision": "fde28a1003ea72f0f165",
-    "url": "/rts-experiments/js/isometric.66d4f10b.js"
+    "revision": "92a7edaca2b47eea2b12",
+    "url": "/rts-experiments/js/isometric.a2d3538e.js"
   },
   {
     "revision": "7143099fdfbc04f914c0d394eb629a1b",
