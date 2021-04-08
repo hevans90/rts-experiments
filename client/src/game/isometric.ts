@@ -139,11 +139,11 @@ export const isoMetricGame = (
         texture: undefined as any,
         sprite: undefined as any,
       },
-      {
-        container: new PIXI.Container(),
-        texture: undefined as any,
-        sprite: undefined as any,
-      },
+      // {
+      //   container: new PIXI.Container(),
+      //   texture: undefined as any,
+      //   sprite: undefined as any,
+      // },
       // {
       //   container: new PIXI.Container(),
       //   texture: undefined as any,
@@ -381,9 +381,9 @@ export const isoMetricGame = (
         cartesianIndicator.text = handledEvent.cartesianIndicatorText;
 
         if (handledEvent.tileIndicatorText !== tileIndicator.text) {
-          console.log(
-            `prev: ${tileIndicator.text}   new:${handledEvent.tileIndicatorText}`,
-          );
+          // console.log(
+          //   `prev: ${tileIndicator.text}   new:${handledEvent.tileIndicatorText}`,
+          // );
           tileIndicator.text = handledEvent.tileIndicatorText;
           if (myContainer.hovered) {
             // TODO: layer context

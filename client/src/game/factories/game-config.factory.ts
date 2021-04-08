@@ -12,7 +12,7 @@ export const gameConfigFactory = (
     mapRadius: number;
     tileWidth: number;
     tileGap: number;
-  } = { mapRadius: 10, tileWidth: 16, tileGap: 0.02 },
+  } = { mapRadius: 8, tileWidth: 64, tileGap: 0.02 },
 ): GameConfig => ({
   canvasHeight,
   canvasWidth,
