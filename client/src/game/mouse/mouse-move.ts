@@ -35,7 +35,7 @@ export const isPositionalUpdate = (
   (update as PositionalUpdate).dely !== undefined;
 
 export const mouseMoveInteraction = (
-  { data }: PIXI.interaction.InteractionEvent,
+  { data }: PIXI.InteractionEvent,
   myContainer: IsometricStack,
   config: GameConfig,
   dragging: boolean,

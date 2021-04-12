@@ -1,7 +1,7 @@
 <template>
   <div class="nav">
-    <router-link to="/game">Play {{ msg }}</router-link>
-    <router-link to="/isometric">What the hell is this?</router-link>
+    <router-link to="/game">{{ msg }}</router-link>
+    <router-link to="/isometric">Isometric Game</router-link>
   </div>
 </template>
 

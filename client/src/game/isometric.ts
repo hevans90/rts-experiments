@@ -1,3 +1,4 @@
+import { OutlineFilter } from '@pixi/filter-outline';
 import * as PIXI from 'pixi.js';
 import { bindKeyboardListeners } from './bind-keyboard-listeners';
 import { gameConfigFactory } from './factories/game-config.factory';
@@ -186,7 +187,7 @@ export const isoMetricGame = (
     );
 
     layers.forEach(({ container, texture }) =>
-      renderer.render(container, texture),
+      renderer.render(container, { renderTexture: texture }),
     );
 
     layers.forEach((layer, index) => {
@@ -243,6 +244,18 @@ export const isoMetricGame = (
     tileGraphic.endFill();
   };
 
+  const setTileOutline = (tileGraphic: IsometricGraphic, color: string) => {
+    tileGraphic.filters = [new OutlineFilter(4, color as any) as any];
+  };
+
+  const removeTileOutline = (tileGraphic: IsometricGraphic) => {
+    if (tileGraphic) {
+      tileGraphic.filters = [];
+    } else {
+      console.warn('tried to remove outline of a tile that does not exist');
+    }
+  };
+
   const setTile = (
     i: number,
     j: number,
@@ -278,7 +291,7 @@ export const isoMetricGame = (
       tileGraphic = getTileGraphic(i, j, layer, config);
       setGraphicTileColor(tileGraphic, '0x009900');
       layers.forEach(({ container, texture }) =>
-        renderer.render(container, texture),
+        renderer.render(container, { renderTexture: texture }),
       );
     } catch (error) {
       console.warn(error.message);
@@ -293,7 +306,7 @@ export const isoMetricGame = (
       tileGraphic = getTileGraphic(i, j, layer, config);
       setGraphicTileColor(tileGraphic, '0xFF0000');
       layers.forEach(({ container, texture }) =>
-        renderer.render(container, texture),
+        renderer.render(container, { renderTexture: texture }),
       );
     } catch (error) {
       console.warn(error.message);
@@ -301,6 +314,14 @@ export const isoMetricGame = (
   };
 
   const hoverTile = ({ i, j }: Tile, layer: PIXI.Container) => {
+    if (myContainer.hovered) {
+      const { i, j } = myContainer.hovered;
+
+      const prevHoveredGraphic = getTileGraphic(i, j, layer, config);
+
+      removeTileOutline(prevHoveredGraphic);
+    }
+
     let tileGraphic: IsometricGraphic;
 
     if (myContainer.selected?.i === i && myContainer.selected?.j === j) {
@@ -311,17 +332,17 @@ export const isoMetricGame = (
 
     try {
       tileGraphic = getTileGraphic(i, j, layer, config);
-      setGraphicTileColor(tileGraphic, '0xFF00FF', 0.7);
+      setTileOutline(tileGraphic, '0xFF00FF');
       layers.forEach(({ container, texture }) =>
-        renderer.render(container, texture),
+        renderer.render(container, { renderTexture: texture }),
       );
     } catch (error) {
-      console.warn(error.message);
+      console.warn(`NOT hightlighting: ${error.message}`);
     }
   };
 
   const bindMouseEvents = () => {
-    const mouseDownHandler = (event: PIXI.interaction.InteractionEvent) => {
+    const mouseDownHandler = (event: PIXI.InteractionEvent) => {
       const handledEvent = mouseDownInteraction(event, myContainer, config);
 
       ({ dragging, draggedx, draggedy, delx, dely, velx, vely } = handledEvent);
@@ -358,7 +379,7 @@ export const isoMetricGame = (
       }
     };
 
-    const mouseMoveHandler = (event: PIXI.interaction.InteractionEvent) => {
+    const mouseMoveHandler = (event: PIXI.InteractionEvent) => {
       const handledEvent = mouseMoveInteraction(
         event,
         myContainer,
@@ -380,17 +401,9 @@ export const isoMetricGame = (
       } else if (isCoordsUpdate(handledEvent)) {
         cartesianIndicator.text = handledEvent.cartesianIndicatorText;
 
-        if (handledEvent.tileIndicatorText !== tileIndicator.text) {
-          // console.log(
-          //   `prev: ${tileIndicator.text}   new:${handledEvent.tileIndicatorText}`,
-          // );
+        if (handledEvent.tileHovered) {
           tileIndicator.text = handledEvent.tileIndicatorText;
-          if (myContainer.hovered) {
-            // TODO: layer context
-            unSelectTile(myContainer.hovered, layers[0].container);
-          }
 
-          // TODO: layer context
           hoverTile(handledEvent.tileHovered, layers[0].container);
 
           tileHovered = handledEvent.tileHovered;

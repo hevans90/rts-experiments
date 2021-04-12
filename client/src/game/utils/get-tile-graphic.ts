@@ -17,5 +17,14 @@ export const getTileGraphic = (
   { mapRadius }: GameConfig,
 ) => {
   const index = (i + mapRadius) * (2 * mapRadius + 1) + j + mapRadius;
-  return layer.getChildAt(index) as IsometricGraphic;
+
+  let graphic: IsometricGraphic = undefined as any;
+
+  try {
+    graphic = layer.getChildAt(index) as IsometricGraphic;
+  } catch (e) {
+    console.error(e);
+  }
+
+  return graphic as IsometricGraphic;
 };

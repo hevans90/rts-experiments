@@ -7,5 +7,5 @@ type AssetTuple = typeof assetKeys;
 export type AssetKey = AssetTuple[number];
 
 export type AssetCollection = {
-  [key in AssetKey]: PIXI.LoaderResource;
+  [key in AssetKey]: PIXI.ILoaderResource;
 };

@@ -11,8 +11,12 @@
     "deploy": "yarn run build && node gh-pages.deploy.js"
   },
   "dependencies": {
+    "@pixi/constants": "^6.0.2",
+    "@pixi/core": "^6.0.2",
+    "@pixi/filter-outline": "^4.0.0",
+    "@pixi/utils": "^6.0.2",
     "core-js": "^3.4.3",
-    "pixi.js": "^5.1.5",
+    "pixi.js": "^6.0.2",
     "register-service-worker": "^1.6.2",
     "stats.js": "^0.17.0",
     "vue": "^2.6.11",

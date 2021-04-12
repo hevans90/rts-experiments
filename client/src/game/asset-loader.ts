@@ -26,7 +26,8 @@ export const loadAssets = async (
   new Promise<Partial<AssetCollection>>((res, rej) => {
     PIXI.Loader.shared
       .add(assetPaths)
-      .on('progress', loadProgressHandler)
-      .on('error', err => rej(err))
+
+      // .on('progress', loadProgressHandler)
+      // .on('error', err => rej(err))
       .load((loader, resourcesLoaded) => res(resourcesLoaded));
   });

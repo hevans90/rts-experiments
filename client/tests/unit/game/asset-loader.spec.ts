@@ -12,6 +12,7 @@ describe('asset loader', () => {
   // put the real XHR object back and clear the mocks after each test
   afterEach(() => mock.teardown());
 
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const catAsset = require('@/assets/cat.png');
 
   it('should REJECT with a HTTP Error if the asset was not found', async () => {
@@ -33,6 +34,6 @@ describe('asset loader', () => {
     const { cat } = await loadAssets([{ name: 'cat', url: catAsset }]);
 
     expect(cat).toBeDefined();
-    expect((cat as PIXI.LoaderResource).data).toEqual('I am cat');
+    expect((cat as PIXI.ILoaderResource).data).toEqual('I am cat');
   });
 });

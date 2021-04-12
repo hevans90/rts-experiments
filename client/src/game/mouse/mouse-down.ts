@@ -4,7 +4,7 @@ import { IsometricStack } from '../models/isometric-stack';
 import { isoToIndex } from '../utils/iso-to-index';
 
 export const mouseDownInteraction = (
-  { data }: PIXI.interaction.InteractionEvent,
+  { data }: PIXI.InteractionEvent,
   myContainer: IsometricStack,
   config: GameConfig,
 ) => {

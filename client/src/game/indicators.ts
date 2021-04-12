@@ -1,12 +1,12 @@
 import * as PIXI from 'pixi.js';
-import { IndicatorPreset } from './models/indicator-preset';
+import { TextStyle } from 'pixi.js';
 
 export enum IndicatorColor {
   white = 0xffffff,
   green = 0x00ff00,
 }
 
-const indicatorPreset: IndicatorPreset = {
+const indicatorPreset: Partial<TextStyle> = {
   fontFamily: 'Courier',
   fontSize: 14,
   fill: IndicatorColor.white,
