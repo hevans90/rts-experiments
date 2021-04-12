@@ -4,15 +4,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rts-experiments/404.html"
   },
   {
-    "revision": "91a983c524eda2fa97bf",
+    "revision": "68d99d76068ff884b5ce",
     "url": "/rts-experiments/css/app.969d22b6.css"
   },
   {
-    "revision": "5992478efe368f831160",
+    "revision": "b2ee0fa0cca7652db1fd",
     "url": "/rts-experiments/css/game.6b40ab58.css"
   },
   {
-    "revision": "44c4509c6b13446ef628",
+    "revision": "c1ea011b91d145b1fdaa",
     "url": "/rts-experiments/css/isometric.830cd5f6.css"
   },
   {
@@ -28,28 +28,28 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/rts-experiments/img/logo.99eaa701.png"
   },
   {
-    "revision": "0461f5300511efb7b740fa8a20175079",
+    "revision": "fe4f57da3e216e172da5c47f572abfcd",
     "url": "/rts-experiments/index.html"
   },
   {
-    "revision": "91a983c524eda2fa97bf",
-    "url": "/rts-experiments/js/app.0f4a6474.js"
+    "revision": "68d99d76068ff884b5ce",
+    "url": "/rts-experiments/js/app.8f5a38e3.js"
   },
   {
     "revision": "3c5ab77f8dd11960b757",
     "url": "/rts-experiments/js/chunk-vendors.fa780ec0.js"
   },
   {
-    "revision": "5992478efe368f831160",
-    "url": "/rts-experiments/js/game.e8623e93.js"
+    "revision": "b2ee0fa0cca7652db1fd",
+    "url": "/rts-experiments/js/game.4207265c.js"
   },
   {
-    "revision": "8ea2ebd0ac28e8906537",
-    "url": "/rts-experiments/js/game~isometric.bf3c9201.js"
+    "revision": "5d50d743e7676d99edf4",
+    "url": "/rts-experiments/js/game~isometric.4d16bab1.js"
   },
   {
-    "revision": "44c4509c6b13446ef628",
-    "url": "/rts-experiments/js/isometric.003229a3.js"
+    "revision": "c1ea011b91d145b1fdaa",
+    "url": "/rts-experiments/js/isometric.37cf71f1.js"
   },
   {
     "revision": "7143099fdfbc04f914c0d394eb629a1b",
