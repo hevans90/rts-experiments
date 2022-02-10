@@ -44,7 +44,7 @@
     "gh-pages": "^2.2.0",
     "jest": "^25.1.0",
     "jest-canvas-mock": "^2.1.2",
-    "node-sass": "^4.9.0",
+    "node-sass": "^7.0.0",
     "prettier": "^1.19.1",
     "sass-loader": "^8.0.2",
     "ts-jest": "^25.2.1",
